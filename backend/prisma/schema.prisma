@@ -1,0 +1,471 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+//
+// ==========================================
+// 🏥 HOSPITAL (SAAS CORE)
+// ==========================================
+//
+model Hospital {
+  id Int @id @default(autoincrement())
+
+  name  String
+  email String  @unique
+  phone String?
+
+  plan     String  @default("BASIC")
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+
+  users          User[]
+  patients       Patient[]
+  doctors        Doctor[]
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  invoices       Invoice[]
+  subscriptions  Subscription[]
+  medications    Medication[]
+  dispensations  Dispensation[]
+  auditLogs      AuditLog[]
+}
+
+//
+// ==========================================
+// 👤 USER (UPDATED WITH NATIONAL ID)
+// ==========================================
+//
+model User {
+  id Int @id @default(autoincrement())
+
+  fullName String
+
+  email      String? @unique
+  nationalId String? @unique
+  phone      String?
+
+  password String
+  role     String
+
+  hospitalId Int?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 🧾 AUDIT LOG
+// ==========================================
+//
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  hospitalId Int?
+  userId     Int?
+  actionType String
+  entity     String
+  entityId   Int?
+  details    String?
+  createdAt  DateTime @default(now())
+
+  hospital Hospital? @relation(fields: [hospitalId], references: [id])
+  user     User?     @relation(fields: [userId], references: [id])
+}
+
+//
+// ==========================================
+// 🏥 PATIENT
+// ==========================================
+//
+model Patient {
+  id Int @id @default(autoincrement())
+
+  fullName String
+  age      Int
+  gender   String
+
+  phone   String?
+  address String?
+
+  hospitalId Int?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  invoices       Invoice[]
+  dispensations  Dispensation[]
+
+  vitals       Vital[]
+  observations NurseObservation[]
+  admissions   Admission[]
+}
+
+//
+// ==========================================
+// 👨‍⚕️ DOCTOR
+// ==========================================
+//
+model Doctor {
+  id Int @id @default(autoincrement())
+
+  fullName  String
+  specialty String
+
+  phone String?
+  email String?
+
+  hospitalId Int?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  invoices       Invoice[]
+}
+
+//
+// ==========================================
+// 📅 APPOINTMENT
+// ==========================================
+//
+model Appointment {
+  id Int @id @default(autoincrement())
+
+  date   DateTime
+  reason String
+
+  status String @default("PENDING")
+
+  patientId Int
+  doctorId  Int
+
+  hospitalId Int?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  doctor  Doctor  @relation(fields: [doctorId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 🧾 MEDICAL RECORD
+// ==========================================
+//
+model MedicalRecord {
+  id Int @id @default(autoincrement())
+
+  patientId  Int
+  doctorId   Int
+  hospitalId Int?
+
+  diagnosis String
+  treatment String?
+  notes     String?
+
+  patient  Patient   @relation(fields: [patientId], references: [id])
+  doctor   Doctor    @relation(fields: [doctorId], references: [id])
+  hospital Hospital? @relation(fields: [hospitalId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 💊 PRESCRIPTION
+// ==========================================
+//
+model Prescription {
+  id Int @id @default(autoincrement())
+
+  patientId  Int
+  doctorId   Int
+  hospitalId Int?
+
+  medication   String
+  dosage       String
+  instructions String?
+
+  patient       Patient        @relation(fields: [patientId], references: [id])
+  doctor        Doctor         @relation(fields: [doctorId], references: [id])
+  hospital      Hospital?      @relation(fields: [hospitalId], references: [id])
+  dispensations Dispensation[]
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 💊 DISPENSATION
+// ==========================================
+//
+model Dispensation {
+  id Int @id @default(autoincrement())
+
+  medicationId   Int
+  patientId      Int
+  prescriptionId Int?
+
+  quantity   Int
+  totalPrice Float
+
+  notes String?
+
+  hospitalId Int?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  dispensedAt DateTime @default(now())
+
+  medication   Medication    @relation(fields: [medicationId], references: [id])
+  patient      Patient       @relation(fields: [patientId], references: [id])
+  prescription Prescription? @relation(fields: [prescriptionId], references: [id])
+}
+
+//
+// ==========================================
+// 💰 INVOICE
+// ==========================================
+//
+model Invoice {
+  id Int @id @default(autoincrement())
+
+  patientId  Int
+  doctorId   Int?
+  hospitalId Int?
+
+  totalAmount Float
+  paidAmount  Float @default(0)
+
+  status String @default("UNPAID")
+
+  description String?
+
+  patient  Patient   @relation(fields: [patientId], references: [id])
+  doctor   Doctor?   @relation(fields: [doctorId], references: [id])
+  hospital Hospital? @relation(fields: [hospitalId], references: [id])
+
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 💳 PAYMENT
+// ==========================================
+//
+model Payment {
+  id Int @id @default(autoincrement())
+
+  invoiceId Int
+  amount    Float
+  method    String
+  reference String?
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 💳 SUBSCRIPTION
+// ==========================================
+//
+model Subscription {
+  id Int @id @default(autoincrement())
+
+  hospitalId Int
+  plan       String
+  amount     Float
+
+  status String @default("ACTIVE")
+
+  startDate DateTime @default(now())
+  endDate   DateTime
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+//
+// ==========================================
+// 💊 MEDICATION
+// ==========================================
+//
+model Medication {
+  id Int @id @default(autoincrement())
+
+  name        String
+  category    String?
+  description String?
+
+  stock     Int   @default(0)
+  unitPrice Float
+
+  batchNumber String?
+  supplier    String?
+
+  expiryDate   DateTime
+  reorderLevel Int      @default(5)
+
+  hospitalId Int?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  dispensations Dispensation[]
+}
+
+//
+// ==========================================
+// 🩺 NURSE MODULE
+// ==========================================
+//
+model Vital {
+  id Int @id @default(autoincrement())
+
+  patientId Int
+  nurseId   Int?
+
+  temperature     Float?
+  bloodPressure   String?
+  pulse           Int?
+  respiratoryRate Int?
+  notes           String?
+
+  recordedAt DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model NurseObservation {
+  id Int @id @default(autoincrement())
+
+  patientId Int
+  nurseId   Int?
+
+  observation String
+  actionTaken String?
+
+  createdAt DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+}
+
+//
+// ==========================================
+// 🏥 WARD SYSTEM
+// ==========================================
+//
+model Ward {
+  id Int @id @default(autoincrement())
+
+  name     String
+  capacity Int
+
+  hospitalId Int
+
+  createdAt DateTime @default(now())
+
+  beds Bed[]
+}
+
+model Bed {
+  id Int @id @default(autoincrement())
+
+  wardId Int
+  patientId Int?
+
+  status String @default("AVAILABLE")
+
+  ward Ward @relation(fields: [wardId], references: [id])
+  admissions Admission[]
+}
+
+model Admission {
+  id Int @id @default(autoincrement())
+
+  patientId Int
+  bedId     Int
+
+  admittedAt   DateTime  @default(now())
+  dischargedAt DateTime?
+
+  status String @default("ACTIVE")
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  bed     Bed     @relation(fields: [bedId], references: [id])
+}
+
+//
+// ==========================================
+// ⚕️ WORKFLOW ENGINE
+// ==========================================
+//
+model Workflow {
+  id Int @id @default(autoincrement())
+
+  name        String
+  description String?
+
+  createdAt DateTime @default(now())
+
+  steps     WorkflowStep[]
+  instances WorkflowInstance[]
+}
+
+model WorkflowStep {
+  id Int @id @default(autoincrement())
+
+  workflowId Int
+  key        String
+  name       String
+  metadata   String?
+
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+}
+
+model WorkflowInstance {
+  id Int @id @default(autoincrement())
+
+  workflowId     Int
+  currentStepKey String
+  status         String @default("ACTIVE")
+  context        String?
+
+  createdAt DateTime @default(now())
+
+  workflow Workflow @relation(fields: [workflowId], references: [id])
+  logs     WorkflowLog[]
+}
+
+model WorkflowLog {
+  id Int @id @default(autoincrement())
+
+  instanceId Int
+  stepKey    String
+  action     String
+  userId     Int?
+  details    String?
+
+  createdAt DateTime @default(now())
+
+  instance WorkflowInstance @relation(fields: [instanceId], references: [id])
+}

@@ -1,0 +1,20 @@
+{
+  "name": "mediflow-hms",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "react-frontend",
+    "backend"
+  ],
+  "scripts": {
+    "start": "npx concurrently \"npm --workspace backend start\" \"npm --workspace react-frontend start\"",
+    "start:backend": "npm --workspace backend start",
+    "start:frontend": "npm --workspace react-frontend start",
+    "build": "npm --workspace react-frontend run build",
+    "test": "node tests/test.js"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "puppeteer": "^20.0.0"
+  }
+}

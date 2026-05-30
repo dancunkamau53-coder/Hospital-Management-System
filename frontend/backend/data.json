@@ -1,0 +1,205 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Admin User",
+      "email": "admin@hospital.gov",
+      "nationalId": "A1000001",
+      "password": "admin123",
+      "role": "ADMIN"
+    },
+    {
+      "id": 2,
+      "name": "Dr. Alice Mwangi",
+      "email": "doctor@hospital.gov",
+      "nationalId": "D2000002",
+      "password": "doctor123",
+      "role": "DOCTOR"
+    },
+    {
+      "id": 3,
+      "name": "Joseph Njoroge",
+      "email": "patient@hospital.gov",
+      "nationalId": "P3000003",
+      "password": "patient123",
+      "role": "PATIENT"
+    }
+  ],
+  "patients": [
+    {
+      "id": 3,
+      "name": "Joseph Njoroge",
+      "email": "patient@hospital.gov",
+      "nationalId": "P3000003",
+      "records": [
+        {
+          "id": 1,
+          "doctorId": 2,
+          "patientId": 3,
+          "note": "Routine checkup, stable blood pressure.",
+          "diagnosis": "Healthy",
+          "date": "2026-05-15"
+        }
+      ],
+      "prescriptions": [
+        {
+          "id": 1,
+          "doctorId": 2,
+          "patientId": 3,
+          "medication": "Ibuprofen",
+          "instructions": "Take one tablet twice daily for three days.",
+          "date": "2026-05-15"
+        }
+      ]
+    }
+  ],
+  "appointments": [
+    {
+      "id": 1,
+      "patientId": 3,
+      "patientName": "Joseph Njoroge",
+      "doctor": "Dr. Alice Mwangi",
+      "date": "2026-06-10",
+      "time": "09:00",
+      "status": "CONFIRMED"
+    },
+    {
+      "id": 2,
+      "patientId": 3,
+      "patientName": "Joseph Njoroge",
+      "doctor": "Dr. Alice Mwangi",
+      "date": "2026-06-05",
+      "time": "10:30",
+      "status": "PENDING"
+    },
+    {
+      "id": 3,
+      "patientId": 3,
+      "patientName": "Joseph Njoroge",
+      "doctor": "Dr. Alice Mwangi",
+      "date": "2026-06-05",
+      "time": "10:30",
+      "status": "PENDING"
+    }
+  ],
+  "medicines": [
+    {
+      "id": 1,
+      "name": "Paracetamol",
+      "stock": 120
+    },
+    {
+      "id": 2,
+      "name": "Amoxicillin",
+      "stock": 50
+    }
+  ],
+  "prescriptions": [
+    {
+      "id": 1,
+      "doctorId": 2,
+      "patientId": 3,
+      "medication": "Ibuprofen",
+      "instructions": "Take one tablet twice daily for three days.",
+      "date": "2026-05-15"
+    }
+  ],
+  "records": [
+    {
+      "id": 1,
+      "doctorId": 2,
+      "patientId": 3,
+      "note": "Routine checkup, stable blood pressure.",
+      "diagnosis": "Healthy",
+      "date": "2026-05-15"
+    }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "patientId": 3,
+      "amount": 4500,
+      "method": "M-Pesa",
+      "status": "COMPLETED",
+      "date": "2026-05-16"
+    },
+    {
+      "id": 2,
+      "patientId": 3,
+      "amount": 500,
+      "method": "M-Pesa",
+      "status": "COMPLETED",
+      "date": "2026-05-28T06:56:13.717Z"
+    },
+    {
+      "id": 3,
+      "patientId": 3,
+      "amount": 500,
+      "method": "M-Pesa",
+      "status": "COMPLETED",
+      "date": "2026-05-28T06:57:01.740Z"
+    }
+  ],
+  "auditLogs": [
+    {
+      "event": "seed",
+      "user": "system",
+      "time": "2026-05-27T00:00:00.000Z",
+      "details": "Seeded hospital data store"
+    },
+    {
+      "event": "book_appointment",
+      "user": "patient@hospital.gov",
+      "time": "2026-05-28T06:56:13.713Z",
+      "details": {
+        "id": 2,
+        "patientId": 3,
+        "patientName": "Joseph Njoroge",
+        "doctor": "Dr. Alice Mwangi",
+        "date": "2026-06-05",
+        "time": "10:30",
+        "status": "PENDING"
+      }
+    },
+    {
+      "event": "payment",
+      "user": "patient@hospital.gov",
+      "time": "2026-05-28T06:56:13.717Z",
+      "details": {
+        "id": 2,
+        "patientId": 3,
+        "amount": 500,
+        "method": "M-Pesa",
+        "status": "COMPLETED",
+        "date": "2026-05-28T06:56:13.717Z"
+      }
+    },
+    {
+      "event": "book_appointment",
+      "user": "patient@hospital.gov",
+      "time": "2026-05-28T06:57:01.732Z",
+      "details": {
+        "id": 3,
+        "patientId": 3,
+        "patientName": "Joseph Njoroge",
+        "doctor": "Dr. Alice Mwangi",
+        "date": "2026-06-05",
+        "time": "10:30",
+        "status": "PENDING"
+      }
+    },
+    {
+      "event": "payment",
+      "user": "patient@hospital.gov",
+      "time": "2026-05-28T06:57:01.740Z",
+      "details": {
+        "id": 3,
+        "patientId": 3,
+        "amount": 500,
+        "method": "M-Pesa",
+        "status": "COMPLETED",
+        "date": "2026-05-28T06:57:01.740Z"
+      }
+    }
+  ]
+}

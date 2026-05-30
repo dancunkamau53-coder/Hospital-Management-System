@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediFlow Hospital System</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+  <!-- ================= SIDEBAR ================= -->
+  <div class="sidebar">
+
+    <h2>MediFlow HMS</h2>
+
+    <a href="#admin"><i class="fa fa-chart-line"></i> Admin Dashboard</a>
+    <a href="#patients"><i class="fa fa-user"></i> Patients</a>
+    <a href="#appointments"><i class="fa fa-calendar"></i> Appointments</a>
+    <a href="#doctor"><i class="fa fa-user-doctor"></i> Doctor</a>
+    <a href="#pharmacy"><i class="fa fa-pills"></i> Pharmacy</a>
+    <a href="login.html"><i class="fa fa-sign-out"></i> Logout</a>
+
+  </div>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+
+    <!-- ================= ADMIN DASHBOARD ================= -->
+    <section id="admin">
+
+      <div class="topbar">
+        <h1>Admin Dashboard</h1>
+        <div class="user"><i class="fa fa-user"></i> Admin</div>
+      </div>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>Total Patients</h3>
+          <p>1,240</p>
+        </div>
+
+        <div class="card">
+          <h3>Appointments</h3>
+          <p>320</p>
+        </div>
+
+        <div class="card">
+          <h3>Doctors</h3>
+          <p>58</p>
+        </div>
+
+        <div class="card">
+          <h3>Revenue</h3>
+          <p>KES 1.2M</p>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ================= PATIENTS ================= -->
+    <section id="patients">
+
+      <div class="patient-form">
+
+        <h2>Register Patient</h2>
+
+        <form id="patientForm">
+
+          <label for="patientName">Patient Name</label>
+          <input type="text" id="patientName" placeholder="Enter patient name" required>
+
+          <label for="patientAge">Age</label>
+          <input type="number" id="patientAge" placeholder="Enter age" required>
+
+          <label for="patientCondition">Condition</label>
+          <input type="text" id="patientCondition" placeholder="Enter condition" required>
+
+          <button type="submit">Save Patient</button>
+
+        </form>
+
+      </div>
+
+      <div class="table-section">
+
+        <h2>Patients List</h2>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Condition</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="patientTableBody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- ================= APPOINTMENTS ================= -->
+    <section id="appointments">
+
+      <div class="appointment-section">
+
+        <h2>Book Appointment</h2>
+
+        <form id="appointmentForm">
+
+          <label for="appointmentPatient">Patient Name</label>
+          <input type="text" id="appointmentPatient" placeholder="Enter patient name" required>
+
+          <label for="appointmentDoctor">Doctor Name</label>
+          <input type="text" id="appointmentDoctor" placeholder="Enter doctor name" required>
+
+          <label for="appointmentDate">Date</label>
+          <input type="date" id="appointmentDate" required>
+
+          <label for="appointmentTime">Time</label>
+          <input type="time" id="appointmentTime" required>
+
+          <button type="submit">Book Appointment</button>
+
+        </form>
+
+      </div>
+
+      <div class="table-section">
+
+        <h2>Appointments</h2>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Date</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+
+          <tbody id="appointmentTableBody"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+    <!-- ================= DOCTOR ================= -->
+    <section id="doctor">
+
+      <h2>Doctor Dashboard</h2>
+
+      <div class="table-section">
+
+        <h3>Assigned Patients</h3>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Condition</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody id="doctorPatientTable"></tbody>
+
+        </table>
+
+      </div>
+
+      <div class="table-section">
+
+        <h3>Doctor Appointments</h3>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Date</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+
+          <tbody id="doctorAppointments"></tbody>
+
+        </table>
+
+      </div>
+
+      <div class="patient-form">
+
+        <h3>Write Prescription</h3>
+
+        <form id="prescriptionForm">
+
+          <label for="prescriptionPatient">Patient Name</label>
+          <input type="text" id="prescriptionPatient" placeholder="Enter patient name" required>
+
+          <label for="medicine">Medicine</label>
+          <input type="text" id="medicine" placeholder="Enter medicine" required>
+
+          <label for="instructions">Instructions</label>
+          <textarea id="instructions" placeholder="Enter instructions" required></textarea>
+
+          <button type="submit">Save Prescription</button>
+
+        </form>
+
+      </div>
+
+    </section>
+
+    <!-- ================= PHARMACY ================= -->
+    <section id="pharmacy">
+
+      <h2>Pharmacy System</h2>
+
+      <div class="patient-form">
+
+        <h3>Add Medicine</h3>
+
+        <form id="medicineForm">
+
+          <label for="medicineName">Medicine Name</label>
+          <input type="text" id="medicineName" placeholder="Enter medicine name" required>
+
+          <label for="medicineStock">Stock Quantity</label>
+          <input type="number" id="medicineStock" placeholder="Enter stock quantity" required>
+
+          <button type="submit">Add Medicine</button>
+
+        </form>
+
+      </div>
+
+      <div class="table-section">
+
+        <h3>Medicine Inventory</h3>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>Medicine</th>
+              <th>Stock</th>
+            </tr>
+          </thead>
+
+          <tbody id="medicineTable"></tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
