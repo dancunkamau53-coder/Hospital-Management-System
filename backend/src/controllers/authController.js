@@ -1,4 +1,5 @@
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -96,6 +97,77 @@ const register = async (req, res) => {
   }
 };
 
+//
+// ==========================================
+// 📝 LOGIN USER
+// ==========================================
+//
+const login = async (req, res) => {
+  try {
+    const { email, nationalId, password } = req.body;
+
+    if ((!email && !nationalId) || !password) {
+      return res.status(400).json({
+        message: "Email or National ID and password are required",
+      });
+    }
+
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          email ? { email } : undefined,
+          nationalId ? { nationalId } : undefined,
+        ].filter(Boolean),
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid credentials",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+        hospitalId: user.hospitalId,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
+    return res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        nationalId: user.nationalId,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("LOGIN ERROR:", error);
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
 module.exports = {
   register,
+  login,
 };
