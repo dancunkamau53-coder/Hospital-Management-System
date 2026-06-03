@@ -1,0 +1,8 @@
+Endpoint,Methods
+/api/ward/admit,POST
+/api/ward/discharge,POST
+/api/ward/*,GET
+/api/ward/*,PUT
+/api/medical-records/*,GET
+/api/workflows/instances/:id,GET
+/api/workflows/instances/:id/transition,POST

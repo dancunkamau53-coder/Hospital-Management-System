@@ -1,0 +1,6 @@
+Endpoint,Methods
+/api/billing/*,POST
+/api/billing/*,GET
+/api/payments/*,POST
+/api/payments/*,GET
+/api/payments/*,PUT

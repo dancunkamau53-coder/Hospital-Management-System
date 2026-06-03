@@ -1,0 +1,5 @@
+Endpoint,Methods
+/api/pharmacy/*,GET
+/api/pharmacy/*,POST
+/api/pharmacy/*,PATCH
+/api/prescriptions/*,GET

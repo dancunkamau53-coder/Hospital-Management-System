@@ -1,0 +1,12 @@
+Endpoint,Methods
+/api/auth/register,POST
+/api/auth/login,POST
+/api/patient-portal/me,GET
+/api/patient-portal/records,GET
+/api/patient-portal/appointments,GET
+/api/patient-portal/request-referral,POST
+/api/patient-portal/export-summary,GET
+/api/appointments,POST
+/api/payments,POST
+/api/invoices,GET
+/api/prescriptions,GET

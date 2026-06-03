@@ -1,0 +1,13 @@
+Endpoint,Methods
+/api/doctor-portal/*,GET
+/api/appointments,GET
+/api/appointments/:id,GET
+/api/appointments/:id/status,PATCH
+/api/medical-records,POST
+/api/medical-records,GET
+/api/prescriptions,GET
+/api/prescriptions,POST
+/api/pharmacy/*,GET
+/api/workflows,GET
+/api/workflows/:id/instantiate,POST
+/api/workflows/instances/:id/transition,POST

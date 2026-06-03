@@ -1,0 +1,6 @@
+Endpoint,Methods
+/api/patients,POST
+/api/patients,GET
+/api/appointments,POST
+/api/appointments,GET
+/api/appointments/:id,GET

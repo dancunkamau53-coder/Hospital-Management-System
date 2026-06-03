@@ -2,11 +2,9 @@ openapi: 3.0.3
 info:
   title: HMS Backend (Auto-generated Role Matrix)
   version: '1.0.0'
-  description: Minimal OpenAPI skeleton describing primary endpoints and security.
+  description: OpenAPI describing primary endpoints and request/response schemas for the HMS backend.
 servers:
   - url: https://hospital-management-system-c1h9.onrender.com
-security:
-  - bearerAuth: []
 components:
   securitySchemes:
     bearerAuth:
@@ -19,30 +17,118 @@ components:
       properties:
         message:
           type: string
-
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        age:
+          type: integer
+        gender:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+    Doctor:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        specialty:
+          type: string
+        phone:
+          type: string
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        status:
+          type: string
+    Prescription:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        doctorId:
+          type: integer
+        medication:
+          type: string
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        amount:
+          type: number
+        status:
+          type: string
+    WardAdmission:
+      type: object
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        wardId:
+          type: integer
 paths:
   /api/auth/register:
     post:
       summary: Register user
       requestBody:
         required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
       responses:
         '201':
           description: Created
         '400':
           description: Bad request
-
   /api/auth/login:
     post:
       summary: Login user
       requestBody:
         required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
       responses:
         '200':
           description: OK
         '401':
           description: Unauthorized
-
   /api/patients:
     get:
       summary: List patients (authorized roles)
@@ -51,14 +137,25 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Patient'
     post:
       summary: Create patient
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
       responses:
         '201':
           description: Created
-
   /api/patients/{id}:
     put:
       summary: Update patient
@@ -68,6 +165,12 @@ paths:
         - name: id
           in: path
           required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
       responses:
         '200':
           description: Updated
@@ -82,21 +185,31 @@ paths:
       responses:
         '204':
           description: Deleted
-
   /api/doctors:
     get:
       summary: List doctors
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Doctor'
     post:
       summary: Create doctor (admin)
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Doctor'
       responses:
         '201':
           description: Created
-
   /api/appointments:
     get:
       summary: List appointments
@@ -109,10 +222,15 @@ paths:
       summary: Create appointment
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
       responses:
         '201':
           description: Created
-
   /api/appointments/{id}/status:
     patch:
       summary: Update appointment status
@@ -122,19 +240,39 @@ paths:
         - name: id
           in: path
           required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
       responses:
         '200':
           description: Updated
-
   /api/medical-records:
     post:
       summary: Create medical record (doctor/admin)
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patientId:
+                  type: integer
+                doctorId:
+                  type: integer
+                diagnosis:
+                  type: string
       responses:
         '201':
           description: Created
-
   /api/prescriptions:
     get:
       summary: List prescriptions
@@ -147,10 +285,15 @@ paths:
       summary: Create prescription (doctor)
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prescription'
       responses:
         '201':
           description: Created
-
   /api/pharmacy:
     get:
       summary: Pharmacy listing (pharmacist/admin)
@@ -159,21 +302,31 @@ paths:
       responses:
         '200':
           description: OK
-
   /api/payments:
     post:
       summary: Create payment (patient)
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
       responses:
         '201':
           description: Created
-
   /api/ward/admit:
     post:
       summary: Admit patient to ward
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WardAdmission'
       responses:
         '201':
           description: Admitted
