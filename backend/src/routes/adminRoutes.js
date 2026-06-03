@@ -15,6 +15,7 @@ const {
 const {
   getDashboardStats
 } = require("../controllers/adminController");
+const { listSubscriptionPayments, listReferralRequests } = require("../controllers/adminController");
 
 
 // ==============================
@@ -25,6 +26,20 @@ router.get(
   authMiddleware,
   authorizeRoles("ADMIN"),
   getDashboardStats
+);
+
+router.get(
+  "/payments",
+  authMiddleware,
+  authorizeRoles("ADMIN"),
+  listSubscriptionPayments
+);
+
+router.get(
+  "/referrals",
+  authMiddleware,
+  authorizeRoles("ADMIN"),
+  listReferralRequests
 );
 
 module.exports = router;

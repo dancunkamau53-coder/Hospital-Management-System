@@ -14,8 +14,12 @@ const {
 // ==============================
 const {
   uploadPaymentProof,
-  approvePayment
+  approvePayment,
+  capturePayPalOrder
 } = require("../controllers/paymentController");
+
+const { rejectPayment } = require("../controllers/paymentController");
+const { simulatePayPalCapture } = require('../controllers/devTestController');
 
 
 // ==============================
@@ -29,6 +33,16 @@ router.post(
 
 
 // ==============================
+// 💳 PAYPAL ORDER CAPTURE
+// ==============================
+router.post(
+  "/confirm",
+  authMiddleware,
+  capturePayPalOrder
+);
+
+
+// ==============================
 // 👑 ADMIN: APPROVE PAYMENT
 // ==============================
 router.put(
@@ -37,5 +51,24 @@ router.put(
   authorizeRoles("ADMIN"),
   approvePayment
 );
+
+router.put(
+  "/reject/:paymentId",
+  authMiddleware,
+  authorizeRoles("ADMIN"),
+  rejectPayment
+);
+
+// ==============================
+// 🧪 DEV: Simulate PayPal capture (non-production only)
+// ==============================
+if (process.env.NODE_ENV !== 'production') {
+  router.post(
+    '/test-capture',
+    authMiddleware,
+    authorizeRoles('ADMIN'),
+    simulatePayPalCapture
+  );
+}
 
 module.exports = router;

@@ -66,6 +66,33 @@ const nurseRoutes = require("./routes/nurseRoutes");
 // WARDS
 const wardRoutes = require("./routes/wardRoutes");
 
+// ADMIN
+const adminRoutes = require("./routes/adminRoutes");
+
+// AUDIT
+const auditRoutes = require("./routes/auditRoutes");
+
+// BILLING
+const billingRoutes = require("./routes/billingRoutes");
+
+// DOCTOR PORTAL
+const doctorPortalRoutes = require("./routes/doctorPortalRoutes");
+
+// HOSPITAL
+const hospitalRoutes = require("./routes/hospitalRoutes");
+
+// PATIENT PORTAL
+const patientPortalRoutes = require("./routes/patientPortalRoutes");
+
+// SUBSCRIPTIONS
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
+
+// WORKFLOW
+const workflowRoutes = require("./routes/workflowRoutes");
+
+// PROTECTED
+const protectedRoutes = require("./routes/protectedRoutes");
+
 
 // ==========================================
 // 🚀 API ROUTES
@@ -103,6 +130,33 @@ app.use("/api/nurse", nurseRoutes);
 
 // WARDS
 app.use("/api/ward", wardRoutes);
+
+// ADMIN
+app.use("/api/admin", adminRoutes);
+
+// AUDIT
+app.use("/api/audit", auditRoutes);
+
+// BILLING
+app.use("/api/billing", billingRoutes);
+
+// DOCTOR PORTAL
+app.use("/api/doctor-portal", doctorPortalRoutes);
+
+// HOSPITAL
+app.use("/api/hospital", hospitalRoutes);
+
+// PATIENT PORTAL
+app.use("/api/patient-portal", patientPortalRoutes);
+
+// SUBSCRIPTIONS
+app.use("/api/subscriptions", subscriptionRoutes);
+
+// WORKFLOW
+app.use("/api/workflows", workflowRoutes);
+
+// PROTECTED
+app.use("/api/protected", protectedRoutes);
 
 
 // ==========================================

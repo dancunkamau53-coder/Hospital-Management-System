@@ -4,8 +4,11 @@ import {
   getPatientRecords,
   getPatientAppointments,
   getPatientPayments,
+  getPatientProfile,
   bookPatientAppointment,
-  payPatientBill
+  createSubscription,
+  exportMedicalSummary,
+  requestReferral
 } from '../../services/patientService';
 
 export default function PatientDashboard() {
@@ -13,9 +16,27 @@ export default function PatientDashboard() {
   const [patientData, setPatientData] = useState({ records: [], prescriptions: [] });
   const [appointments, setAppointments] = useState([]);
   const [payments, setPayments] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [appointment, setAppointment] = useState({ doctor: 'Dr. Alice Mwangi', date: '', time: '', reason: '' });
-  const [payment, setPayment] = useState({ amount: 0, method: 'M-Pesa', plan: 'eCitizen Health Plan', accountReference: user?.email || '' });
+  const [subscriptionPlan, setSubscriptionPlan] = useState('BASIC');
+  const [membershipStatus, setMembershipStatus] = useState('INACTIVE');
+  const [membershipExpiry, setMembershipExpiry] = useState(null);
+  const [subscriptionId, setSubscriptionId] = useState(null);
   const [message, setMessage] = useState('');
+  const [notifications, setNotifications] = useState([
+    { id: 1, title: 'Health ID activation', description: 'Your eCitizen health membership is ready to use once PayPal payment completes.' },
+    { id: 2, title: 'New Consultation slots', description: 'New doctor consultation slots are available for the next 7 days.' },
+    { id: 3, title: 'Document delivery', description: 'Your digital subscription certificate will appear in the portal after payment.' }
+  ]);
+  const [programs] = useState([
+    { id: 1, name: 'MCH Care Support', description: 'Maternal and child health services under the national eCitizen program.' },
+    { id: 2, name: 'Chronic Care Tracker', description: 'Enroll for follow-up reminders for diabetes, hypertension and long-term care.' },
+    { id: 3, name: 'Immunization Schedule', description: 'View your personal vaccination program and renewal dates.' }
+  ]);
+  const [careTeam] = useState([
+    { id: 1, name: 'Dr. Alice Mwangi', role: 'Primary Physician', phone: '+254 712 345678' },
+    { id: 2, name: 'Nurse Jane Otieno', role: 'Care Coordinator', phone: '+254 723 987654' }
+  ]);
 
   const upcomingAppointments = useMemo(
     () => appointments.filter((appointment) => new Date(appointment.date) >= new Date()).slice(0, 5),
@@ -28,13 +49,18 @@ export default function PatientDashboard() {
   );
 
   useEffect(() => {
-    setPayment((prev) => ({ ...prev, accountReference: user?.email || prev.accountReference }));
-  }, [user]);
-
-  useEffect(() => {
-    getPatientRecords().then((response) => setPatientData(response.data)).catch(() => {});
-    getPatientAppointments().then((response) => setAppointments(response.data.appointments)).catch(() => {});
-    getPatientPayments().then((response) => setPayments(response.data.payments)).catch(() => {});
+    getPatientRecords()
+      .then((response) => {
+        const data = response.data;
+        setPatientData({
+          records: Array.isArray(data) ? data : data.records || [],
+          prescriptions: data.prescriptions || []
+        });
+      })
+      .catch(() => {});
+    getPatientAppointments().then((response) => setAppointments(response.data || [])).catch(() => {});
+    getPatientPayments().then((response) => setPayments(response.data?.payments || [])).catch(() => {});
+    getPatientProfile().then((response) => setProfile(response.data)).catch(() => {});
   }, []);
 
   const handleAppointmentSubmit = async (event) => {
@@ -51,134 +77,254 @@ export default function PatientDashboard() {
     }
   };
 
-  const handlePaymentSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubscribe = async (event) => {
+    event && event.preventDefault();
     setMessage('');
 
     try {
-      const response = await payPatientBill(payment);
-      setPayments((prev) => [response.data, ...prev]);
-      setMessage(`Payment of KES ${response.data.amount} completed via ${response.data.method}. Subscription confirmation is now available in your portal and will be delivered to your registered email.`);
-      setPayment({ amount: 0, method: 'M-Pesa', plan: 'eCitizen Health Plan', accountReference: user?.email || '' });
+      const payload = { plan: subscriptionPlan };
+      const response = await createSubscription(payload);
+      const subscription = response.data.subscription;
+      setMembershipStatus(subscription?.status || 'PENDING');
+      setMembershipExpiry(subscription?.endDate || null);
+      setSubscriptionId(subscription?.id || null);
+      const url = response.data.paypalApprovalUrl;
+      if (url) {
+        window.location.href = url;
+        return;
+      }
+      setMessage('Subscription created. Please complete payment using the provided PayPal link.');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Payment failed.');
+      setMessage(error.response?.data?.message || 'Unable to start PayPal checkout.');
     }
   };
 
-  const handleCopyPaybill = async () => {
-    const details = `Paybill: 200200 | Account: ${payment.accountReference || user?.email}`;
+  const handleDownloadCertificate = () => {
+    setMessage('Your subscription certificate will be available in the portal once PayPal payment is confirmed.');
+  };
+
+  const handleContactSupport = () => {
+    setMessage('For help, email support@ecitizen.go.ke or call +254 700 000000.');
+  };
+
+  const handleExportSummary = async () => {
+    setMessage('Preparing your medical summary export...');
     try {
-      await navigator.clipboard.writeText(details);
-      setMessage('M-Pesa Paybill details copied to clipboard.');
-    } catch {
-      setMessage('Copy failed. Use Paybill 200200 and your registered email as account reference.');
+      const response = await exportMedicalSummary();
+      const data = response.data;
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `medical_summary_${profile?.id || 'patient'}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setMessage('Medical summary downloaded.');
+    } catch (err) {
+      setMessage('Unable to export summary.');
     }
   };
+
+  const handleRequestReferral = async () => {
+    setMessage('Submitting referral request...');
+    try {
+      const payload = { specialty: 'GENERAL', reason: 'Requested via patient dashboard' };
+      const resp = await requestReferral(payload);
+      setMessage(resp.data?.message || 'Referral request submitted. You will receive confirmation by email.');
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Unable to submit referral request.');
+    }
+  };
+
+  const handleDownloadHealthID = () => {
+    setMessage('Your eCitizen digital health ID will be made available once the payment is verified.');
+  };
+
+  const activeMemberSince = profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : 'N/A';
+  const healthInsights = useMemo(() => {
+    const totalVisits = patientData.records.length;
+    const conditions = [...new Set(patientData.records.map((record) => record.diagnosis).filter(Boolean))];
+    const nextRefill = patientData.prescriptions.find((prescription) => prescription.refillDate)?.refillDate || null;
+    return {
+      totalVisits,
+      conditionCount: conditions.length,
+      nextRefill
+    };
+  }, [patientData]);
 
   return (
     <div>
       <div className="admin-dashboard">
-        <h1>Patient Portal</h1>
-        <p>Welcome back, {user?.name || 'Patient'}. Manage appointments, paybills, prescriptions, and your subscription from one secure eCitizen dashboard.</p>
+        <h1>eCitizen Health Dashboard</h1>
+        <p>Welcome back, {user?.name || 'Patient'}. Access your government health services, consultations and membership information from this secure portal.</p>
+      </div>
+
+      <section className="dashboard-summary table-card">
+        <h2>At a Glance</h2>
         <div className="cards">
           <div className="card">
-            <h3>Upcoming Appointment</h3>
+            <h3>Membership Status</h3>
+            <p>{membershipStatus}</p>
+            {membershipExpiry && <p>Expires {new Date(membershipExpiry).toLocaleDateString()}</p>}
+          </div>
+          <div className="card">
+            <h3>Selected Plan</h3>
+            <p>{subscriptionPlan}</p>
+          </div>
+          <div className="card">
+            <h3>Next Consultation</h3>
             <p>{upcomingAppointments[0] ? `${upcomingAppointments[0].doctor} • ${upcomingAppointments[0].date} ${upcomingAppointments[0].time}` : 'No appointment scheduled.'}</p>
           </div>
           <div className="card">
-            <h3>Active Subscription</h3>
-            <p>eCitizen Health Plan • Portal + Email delivery</p>
+            <h3>Payments</h3>
+            <p>KES {totalPaid}</p>
           </div>
           <div className="card">
-            <h3>Total Paid</h3>
-            <p>KES {totalPaid}</p>
+            <h3>Patient Profile</h3>
+            <p><strong>{profile?.fullName || user?.name || 'Unknown'}</strong></p>
+            <p>Email: {profile?.email || user?.email || 'Not available'}</p>
+            <p>Member since {activeMemberSince}</p>
+          </div>
+          <div className="card">
+            <h3>Health Insights</h3>
+            <p>Total government clinic visits: {healthInsights.totalVisits}</p>
+            <p>Tracked conditions: {healthInsights.conditionCount || 'None recorded'}</p>
+            <p>{healthInsights.nextRefill ? `Next refill due ${new Date(healthInsights.nextRefill).toLocaleDateString()}` : 'No refill scheduled'}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="table-card">
+        <h2>Membership & Payments</h2>
+        <div className="cards">
+          <div className="card">
+            <h3>Active Membership</h3>
+            <p>eCitizen Health Membership • Portal + Email delivery</p>
+            <div style={{ marginTop: '12px' }}>
+              <label style={{ marginRight: '8px' }}>Plan:</label>
+              <select value={subscriptionPlan} onChange={(e) => setSubscriptionPlan(e.target.value)}>
+                <option value="BASIC">BASIC - KES 1,500</option>
+                <option value="PRO">PRO - KES 3,000</option>
+                <option value="PREMIUM">PREMIUM - KES 5,000</option>
+              </select>
+              <button style={{ marginLeft: '12px' }} onClick={handleSubscribe}>Subscribe / Pay</button>
+            </div>
+          </div>
+          <div className="card">
+            <h3>Transaction Summary</h3>
+            <p>Total paid so far through your eCitizen membership.</p>
+            <p style={{ marginTop: '10px', fontSize: '1.5rem', fontWeight: 700 }}>KES {totalPaid}</p>
           </div>
           <div className="card">
             <h3>Latest Prescription</h3>
             <p>{patientData.prescriptions[0]?.medication || 'No prescriptions yet.'}</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="table-card">
-        <h2>Appointment & Paybill Hub</h2>
+      <section className="table-card">
+        <h2>Portal Notifications</h2>
+        <div className="cards">
+          {notifications.map((note) => (
+            <div className="card" key={note.id} style={{ flex: 1, minWidth: '220px' }}>
+              <h3>{note.title}</h3>
+              <p>{note.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="table-card">
+        <h2>Appointments</h2>
+        <div className="form-card">
+          <h3>Book Consultation</h3>
+          <p>Choose a specialist and reserve your government health consultation slot.</p>
+          <form onSubmit={handleAppointmentSubmit}>
+            <select
+              value={appointment.doctor}
+              onChange={(e) => setAppointment({ ...appointment, doctor: e.target.value })}
+            >
+              <option value="Dr. Alice Mwangi">Dr. Alice Mwangi</option>
+              <option value="Dr. Samuel Kimani">Dr. Samuel Kimani</option>
+              <option value="Dr. Grace Wambui">Dr. Grace Wambui</option>
+            </select>
+            <input
+              value={appointment.date}
+              onChange={(e) => setAppointment({ ...appointment, date: e.target.value })}
+              type="date"
+              required
+            />
+            <input
+              value={appointment.time}
+              onChange={(e) => setAppointment({ ...appointment, time: e.target.value })}
+              type="time"
+              required
+            />
+            <input
+              value={appointment.reason}
+              onChange={(e) => setAppointment({ ...appointment, reason: e.target.value })}
+              placeholder="Reason for visit"
+              required
+            />
+            <button type="submit">Send Booking Request</button>
+          </form>
+        </div>
+      </section>
+
+      <section className="table-card">
+        <h2>Quick Actions</h2>
         <div className="table-row">
           <div className="form-card">
-            <h3>Book Appointment</h3>
-            <p>Choose a specialist and reserve a consultation slot with the hospital.</p>
-            <form onSubmit={handleAppointmentSubmit}>
-              <select
-                value={appointment.doctor}
-                onChange={(e) => setAppointment({ ...appointment, doctor: e.target.value })}
-              >
-                <option value="Dr. Alice Mwangi">Dr. Alice Mwangi</option>
-                <option value="Dr. Samuel Kimani">Dr. Samuel Kimani</option>
-                <option value="Dr. Grace Wambui">Dr. Grace Wambui</option>
-              </select>
-              <input
-                value={appointment.date}
-                onChange={(e) => setAppointment({ ...appointment, date: e.target.value })}
-                type="date"
-                required
-              />
-              <input
-                value={appointment.time}
-                onChange={(e) => setAppointment({ ...appointment, time: e.target.value })}
-                type="time"
-                required
-              />
-              <input
-                value={appointment.reason}
-                onChange={(e) => setAppointment({ ...appointment, reason: e.target.value })}
-                placeholder="Reason for visit"
-                required
-              />
-              <button type="submit">Send Booking Request</button>
-            </form>
+            <h3>Pay with PayPal</h3>
+            <p>Complete your eCitizen health membership payment securely through PayPal.</p>
+            <button type="button" onClick={handleSubscribe}>Pay Now</button>
+            <button type="button" onClick={handleExportSummary} style={{ marginLeft: '10px' }}>Export Summary</button>
+            <button type="button" onClick={handleRequestReferral} style={{ marginLeft: '10px' }}>Request Referral</button>
           </div>
-
           <div className="form-card">
-            <h3>M-Pesa Paybill Instructions</h3>
-            <p>Use the hospital paybill to settle membership, consultation, and prescription fees.</p>
-            <div className="card" style={{ padding: '12px', border: '1px solid #0b5ed7' }}>
-              <p><strong>Paybill:</strong> 200200</p>
-              <p><strong>Account:</strong> {payment.accountReference || user?.email}</p>
-              <p><strong>Purpose:</strong> {payment.plan}</p>
-            </div>
-            <button type="button" onClick={handleCopyPaybill}>Copy Paybill Details</button>
-            <form onSubmit={handlePaymentSubmit}>
-              <input
-                value={payment.amount}
-                onChange={(e) => setPayment({ ...payment, amount: e.target.value })}
-                type="number"
-                min="100"
-                placeholder="Amount in KES"
-                required
-              />
-              <select
-                value={payment.plan}
-                onChange={(e) => setPayment({ ...payment, plan: e.target.value })}
-              >
-                <option value="eCitizen Health Plan">eCitizen Health Plan</option>
-                <option value="eCitizen Premium Plus">eCitizen Premium Plus</option>
-                <option value="eCitizen Family Cover">eCitizen Family Cover</option>
-              </select>
-              <button type="submit">Submit Payment</button>
-            </form>
-          </div>
-
-          <div className="form-card">
-            <h3>Subscription Delivery</h3>
-            <p>Your membership and invoice are delivered through the portal and your registered email address.</p>
-            <p>If you need a copy of your subscription agreement or invoice, it will appear in your dashboard after payment.</p>
-            <p><strong>Notifications sent to:</strong> {user?.email}</p>
+            <h3>Support & Resources</h3>
+            <p>Access your digital health card, programme details, and emergency contact support.</p>
+            <button type="button" onClick={handleDownloadHealthID}>Download Health ID</button>
+            <button type="button" onClick={handleContactSupport} style={{ marginLeft: '10px' }}>Contact Support</button>
+            <p style={{ marginTop: '14px' }}><strong>Notifications sent to:</strong> {user?.email}</p>
           </div>
         </div>
-        {message && <div className="card" style={{ background: '#e9f6ff', marginTop: '16px' }}>{message}</div>}
-      </div>
+      </section>
+
+      <section className="table-card">
+        <h2>Government Health Programs</h2>
+        <div className="cards">
+          {programs.map((program) => (
+            <div className="card" key={program.id} style={{ minWidth: '220px' }}>
+              <h3>{program.name}</h3>
+              <p>{program.description}</p>
+              <button type="button" onClick={() => setMessage(`You have opened details for ${program.name}.`)} style={{ marginTop: '14px' }}>
+                View Details
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="table-card">
+        <h2>My Care Team</h2>
+        <div className="cards">
+          {careTeam.map((member) => (
+            <div className="card" key={member.id} style={{ minWidth: '220px' }}>
+              <h3>{member.name}</h3>
+              <p>{member.role}</p>
+              <p>{member.phone}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {message && <div className="card" style={{ background: '#e9f6ff', marginTop: '16px' }}>{message}</div>}
 
       <div className="table-card">
-        <h2>Upcoming Appointments</h2>
+        <h2>Upcoming Consultations</h2>
         {appointments.length ? (
           <table>
             <thead>
@@ -206,7 +352,7 @@ export default function PatientDashboard() {
       </div>
 
       <div className="table-card">
-        <h2>Payment History</h2>
+        <h2>Transaction History</h2>
         {payments.length ? (
           <table>
             <thead>

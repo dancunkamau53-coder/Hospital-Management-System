@@ -110,8 +110,47 @@ const getDashboardStats = async (req, res) => {
 
 
 // ==============================
+// 💳 LIST SUBSCRIPTION PAYMENTS
+// ==============================
+const listSubscriptionPayments = async (req, res) => {
+  try {
+    const payments = await prisma.subscriptionPayment.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        subscription: true,
+        hospital: true
+      }
+    });
+
+    res.json({ message: 'Subscription payments loaded', payments });
+  } catch (error) {
+    res.status(500).json({ message: 'Error loading payments', error: error.message });
+  }
+};
+
+
+// ==============================
+// 📋 LIST REFERRAL REQUESTS
+// ==============================
+const listReferralRequests = async (req, res) => {
+  try {
+    const referrals = await prisma.auditLog.findMany({
+      where: { actionType: 'REFERRAL_REQUEST' },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    res.json({ message: 'Referral requests loaded', referrals });
+  } catch (error) {
+    res.status(500).json({ message: 'Error loading referrals', error: error.message });
+  }
+};
+
+
+// ==============================
 // EXPORTS
 // ==============================
 module.exports = {
-  getDashboardStats
+  getDashboardStats,
+  listSubscriptionPayments,
+  listReferralRequests
 };

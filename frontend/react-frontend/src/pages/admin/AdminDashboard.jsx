@@ -11,24 +11,24 @@ export default function AdminDashboard() {
   return (
     <div>
       <div className="admin-dashboard">
-        <h1>NHIF / SHA Style Admin Panel</h1>
-        <p>Manage membership plans, paybill reconciliation, provider networks, and audit trails from a central admin console.</p>
+        <h1>eCitizen Health Admin Panel</h1>
+        <p>Manage membership plans, payment reconciliation, provider networks, and compliance from a central government health dashboard.</p>
         <div className="cards">
           <div className="card">
             <h3>Claims Management</h3>
-            <p>Track submitted service claims and confirm reimbursements.</p>
+            <p>Track submitted health service claims and confirm reimbursements under the eCitizen scheme.</p>
           </div>
           <div className="card">
-            <h3>Paybill Reconciliation</h3>
-            <p>Reconcile M-Pesa paybill transactions tied to patient subscriptions.</p>
+            <h3>Payment Reconciliation</h3>
+            <p>Reconcile PayPal and membership payments tied to eCitizen health subscriptions.</p>
           </div>
           <div className="card">
             <h3>Provider Network</h3>
-            <p>Manage SHA / NHIF network providers and benefit coverage.</p>
+            <p>Manage the national health provider network and coverage for registered members.</p>
           </div>
           <div className="card">
             <h3>Audit & Compliance</h3>
-            <p>Review portal events, subscription approvals, and security logs.</p>
+            <p>Review portal events, membership approvals, and security audit logs.</p>
           </div>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function AdminDashboard() {
               <h3>Reconciliation Insights</h3>
               <p>Total Payments: KES {report.totalPayments}</p>
               <p>Claims submitted: {report.totalClaims}</p>
-              <p>Provider network coverage active across the hospital.</p>
+              <p>National provider network coverage is active for this scheme.</p>
             </div>
           </div>
 

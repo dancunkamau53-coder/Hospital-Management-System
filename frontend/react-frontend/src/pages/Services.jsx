@@ -10,7 +10,7 @@ export default function Services() {
 
   return (
     <div className="admin-dashboard">
-      <h1>Hospital Services</h1>
+      <h1>eCitizen Health Services</h1>
       <div className="cards">
         {services.map((service) => (
           <div key={service.id} className="card">

@@ -32,6 +32,7 @@ model Hospital {
   prescriptions  Prescription[]
   invoices       Invoice[]
   subscriptions  Subscription[]
+  subscriptionPayments SubscriptionPayment[]
   medications    Medication[]
   dispensations  Dispensation[]
   auditLogs      AuditLog[]
@@ -282,6 +283,25 @@ model Payment {
   createdAt DateTime @default(now())
 }
 
+model SubscriptionPayment {
+  id Int @id @default(autoincrement())
+
+  subscriptionId Int
+  hospitalId     Int?
+  amount         Float
+  method         String  @default("PAYPAL")
+  reference      String?
+  proofImage     String?
+  status         String  @default("PENDING")
+  paypalOrderId  String? @unique
+  paypalCaptureId String? @unique
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  hospital     Hospital?  @relation(fields: [hospitalId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
 //
 // ==========================================
 // 💳 SUBSCRIPTION
@@ -300,6 +320,8 @@ model Subscription {
   endDate   DateTime
 
   hospital Hospital @relation(fields: [hospitalId], references: [id])
+
+  payments SubscriptionPayment[]
 
   createdAt DateTime @default(now())
 }

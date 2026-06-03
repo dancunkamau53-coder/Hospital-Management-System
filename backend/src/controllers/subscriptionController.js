@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const { client: paypalClient } = require("../service/paypalClient");
 const prisma = new PrismaClient();
 
 const createSubscription = async (req, res) => {
@@ -15,9 +16,6 @@ const createSubscription = async (req, res) => {
       });
     }
 
-    // ==========================
-    // 💰 PLAN PRICING
-    // ==========================
     const plans = {
       BASIC: 1500,
       PRO: 3000,
@@ -32,16 +30,10 @@ const createSubscription = async (req, res) => {
       });
     }
 
-    // ==========================
-    // 📅 SUBSCRIPTION DATES
-    // ==========================
     const startDate = new Date();
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 30);
 
-    // ==========================
-    // 🏥 CREATE SUBSCRIPTION
-    // ==========================
     const subscription = await prisma.subscription.create({
       data: {
         hospitalId: parseInt(hospitalId),
@@ -53,33 +45,59 @@ const createSubscription = async (req, res) => {
       }
     });
 
-    // ==========================
-    // 💳 RESPONSE (BANK PAYMENT INFO)
-    // ==========================
-    res.status(201).json({
-      message: "Subscription created successfully (PENDING PAYMENT)",
+    const paypal = paypalClient();
+    const domain = process.env.CLIENT_URL || "http://localhost:3000";
+    const currency = process.env.PAYPAL_CURRENCY || "USD";
 
-      subscription,
-
-      paymentInstructions: {
-        method: "BANK TRANSFER",
-
-        bankDetails: {
-          bankName: "KCB Bank",
-          accountName: "Your Hospital SaaS Name",
-          accountNumber: "1234567890",
-          branch: "Nairobi CBD"
-        },
-
-        steps: [
-          "1. Send payment to the bank account",
-          "2. Use hospital name as reference",
-          "3. Upload payment proof (screenshot or receipt)",
-          "4. Wait for admin approval"
-        ]
+    const request = new (require('@paypal/checkout-server-sdk').orders.OrdersCreateRequest)();
+    request.prefer("return=representation");
+    request.requestBody({
+      intent: "CAPTURE",
+      purchase_units: [
+        {
+          reference_id: subscription.id.toString(),
+          description: `${plan} Hospital Subscription`,
+          amount: {
+            currency_code: currency,
+            value: amount.toFixed(2)
+          }
+        }
+      ],
+      application_context: {
+        brand_name: "HMS Hospital Management System",
+        landing_page: "BILLING",
+        user_action: "PAY_NOW",
+        return_url: `${domain}/payment-success?subscriptionId=${subscription.id}`,
+        cancel_url: `${domain}/payment-cancelled`
       }
     });
 
+    const response = await paypal.execute(request);
+    const approvalUrl = response.result.links.find((link) => link.rel === "approve")?.href;
+
+    await prisma.subscriptionPayment.create({
+      data: {
+        subscriptionId: subscription.id,
+        hospitalId: subscription.hospitalId,
+        amount,
+        method: "PAYPAL",
+        status: "PENDING",
+        paypalOrderId: response.result.id
+      }
+    });
+
+    if (!approvalUrl) {
+      return res.status(500).json({
+        message: "Unable to create PayPal checkout session"
+      });
+    }
+
+    res.status(201).json({
+      message: "Subscription created. Complete payment using PayPal.",
+      subscription,
+      paypalApprovalUrl: approvalUrl,
+      paypalOrderId: response.result.id
+    });
   } catch (error) {
     res.status(500).json({
       message: "Error creating subscription",

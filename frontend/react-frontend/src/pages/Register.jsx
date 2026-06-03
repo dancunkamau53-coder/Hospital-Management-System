@@ -22,8 +22,8 @@ export default function Register() {
 
   return (
     <div className="form-card">
-      <h1>Patient Registration</h1>
-      <p>Create your hospital portal account.</p>
+      <h1>eCitizen Health Registration</h1>
+      <p>Create your official health portal account with your National ID.</p>
       <form onSubmit={handleSubmit}>
         <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required />
         <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="Email" required />

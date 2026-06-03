@@ -20,8 +20,8 @@ export default function Login() {
 
   return (
     <div className="form-card">
-      <h1>eCitizen Hospital Login</h1>
-      <p>Sign in with your Email or National ID.</p>
+      <h1>eCitizen Health Portal Login</h1>
+      <p>Sign in with your Email or National ID to access government health services.</p>
       <form onSubmit={handleSubmit}>
         <input
           value={credential}

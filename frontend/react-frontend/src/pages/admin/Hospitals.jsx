@@ -1,2 +1,2 @@
 import React from 'react';
-export default function Hospitals() { return <div><h1>Hospitals</h1></div>; }
+export default function ProviderNetwork() { return <div><h1>Health Providers</h1><p>Manage the registered eCitizen health provider network and facility information.</p></div>; }

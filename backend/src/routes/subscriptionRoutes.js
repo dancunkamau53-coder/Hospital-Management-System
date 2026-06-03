@@ -11,7 +11,6 @@ const { createSubscription } = require("../controllers/subscriptionController");
 router.post(
   "/",
   authMiddleware,
-  authorizeRoles("ADMIN"),
   createSubscription
 );
 

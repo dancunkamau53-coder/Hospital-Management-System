@@ -7,7 +7,8 @@ export default function Navbar() {
 
   return (
     <header className="sidebar">
-      <h2>eCitizen Hospital</h2>
+      <h2>eCitizen Health Service</h2>
+      <p className="sidebar-tagline">Government Health Portal</p>
       <nav>
         <Link to="/services">Services</Link>
         {!user && <Link to="/login">Login</Link>}
