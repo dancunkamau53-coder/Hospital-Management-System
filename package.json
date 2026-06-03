@@ -6,5 +6,8 @@
     "postinstall": "cd backend && npm install && npx prisma generate",
     "start": "cd backend && npm start",
     "dev": "cd backend && npm run dev"
+  },
+  "devDependencies": {
+    "swagger-ui-dist": "^5.32.6"
   }
 }

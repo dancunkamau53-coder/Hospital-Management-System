@@ -3,17 +3,18 @@
   <head>
     <meta charset="utf-8" />
     <title>HMS API — Swagger UI</title>
-    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css" />
+    <link rel="stylesheet" href="swagger-ui/swagger-ui.css" />
     <style>body{margin:0;padding:0;}#swagger-ui{height:100vh}</style>
   </head>
   <body>
     <div id="swagger-ui"></div>
-    <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+    <script src="swagger-ui/swagger-ui-bundle.js"></script>
+    <script src="swagger-ui/swagger-ui-standalone-preset.js"></script>
     <script>
       const ui = SwaggerUIBundle({
         url: 'openapi.yaml',
         dom_id: '#swagger-ui',
-        presets: [SwaggerUIBundle.presets.apis],
+        presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
         layout: 'BaseLayout',
       });
     </script>
