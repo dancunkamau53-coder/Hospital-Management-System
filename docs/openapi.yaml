@@ -330,3 +330,123 @@ paths:
       responses:
         '201':
           description: Admitted
+ 
+components:
+  examples:
+    RegisterRequest:
+      summary: Example user registration
+      value:
+        fullName: "Alice Admin"
+        email: "admin@example.com"
+        password: "P@ssw0rd!"
+        role: "ADMIN"
+    RegisterResponse:
+      summary: Example register response
+      value:
+        id: 1
+        fullName: "Alice Admin"
+        email: "admin@example.com"
+        role: "ADMIN"
+    LoginRequest:
+      summary: Example login request
+      value:
+        email: "admin@example.com"
+        password: "P@ssw0rd!"
+    LoginResponse:
+      summary: Example login response with JWT
+      value:
+        token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example"
+        user:
+          id: 1
+          fullName: "Alice Admin"
+          email: "admin@example.com"
+          role: "ADMIN"
+    PatientCreate:
+      summary: Example patient creation
+      value:
+        fullName: "John Doe"
+        age: 45
+        gender: "male"
+        phone: "+254712345678"
+        address: "123 Main St"
+    PatientResponse:
+      summary: Example patient response
+      value:
+        id: 101
+        fullName: "John Doe"
+        age: 45
+        gender: "male"
+        phone: "+254712345678"
+        address: "123 Main St"
+
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          examples:
+            unauthorized:
+              summary: Unauthorized
+              value:
+                message: "Unauthorized"
+
+  schemas:
+    # (note: existing schemas above are preserved) #
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+
+  # Attach examples to key paths
+paths:
+  /api/auth/register:
+    post:
+      requestBody:
+        content:
+          application/json:
+            examples:
+              sample:
+                $ref: '#/components/examples/RegisterRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                sample:
+                  $ref: '#/components/examples/RegisterResponse'
+  /api/auth/login:
+    post:
+      requestBody:
+        content:
+          application/json:
+            examples:
+              sample:
+                $ref: '#/components/examples/LoginRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                sample:
+                  $ref: '#/components/examples/LoginResponse'
+  /api/patients:
+    post:
+      requestBody:
+        content:
+          application/json:
+            examples:
+              sample:
+                $ref: '#/components/examples/PatientCreate'
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                sample:
+                  $ref: '#/components/examples/PatientResponse'
