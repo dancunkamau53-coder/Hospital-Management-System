@@ -37,7 +37,7 @@ module.exports = {
     port: process.env.PORT || 3000,
     open: false,
     proxy: {
-      '/api': process.env.API_PROXY || 'http://localhost:4000'
+      '/api': process.env.API_PROXY || 'http://localhost:10000'
     }
   }
 };

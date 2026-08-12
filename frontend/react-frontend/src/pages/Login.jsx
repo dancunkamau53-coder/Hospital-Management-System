@@ -12,7 +12,11 @@ export default function Login() {
     setError(null);
 
     try {
-      await login({ credential, password });
+      await login({
+        email: credential.includes('@') ? credential : undefined,
+        nationalId: credential.includes('@') ? undefined : credential,
+        password,
+      });
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }

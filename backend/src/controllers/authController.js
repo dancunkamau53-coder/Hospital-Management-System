@@ -13,6 +13,7 @@ const register = async (req, res) => {
   try {
     const {
       fullName,
+      name,
       email,
       nationalId,
       phone,
@@ -21,10 +22,12 @@ const register = async (req, res) => {
       hospitalId,
     } = req.body;
 
+    const resolvedFullName = fullName || name;
+
     // ==========================================
     // 1. VALIDATION
     // ==========================================
-    if (!fullName || !password) {
+    if (!resolvedFullName || !password) {
       return res.status(400).json({
         message: "Full name and password are required",
       });
@@ -64,7 +67,7 @@ const register = async (req, res) => {
     // ==========================================
     const user = await prisma.user.create({
       data: {
-        fullName,
+        fullName: resolvedFullName,
         email: email || null,
         nationalId: nationalId || null,
         phone: phone || null,
@@ -74,11 +77,24 @@ const register = async (req, res) => {
       },
     });
 
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+        hospitalId: user.hospitalId,
+      },
+      process.env.JWT_SECRET || "hospital_system_super_secure_secret_key",
+      {
+        expiresIn: "7d",
+      }
+    );
+
     // ==========================================
     // 5. RESPONSE
     // ==========================================
     return res.status(201).json({
       message: "User registered successfully",
+      token,
       user: {
         id: user.id,
         fullName: user.fullName,
@@ -104,9 +120,11 @@ const register = async (req, res) => {
 //
 const login = async (req, res) => {
   try {
-    const { email, nationalId, password } = req.body;
+    const { email, nationalId, credential, password } = req.body;
+    const resolvedEmail = email || (credential && credential.includes('@') ? credential : undefined);
+    const resolvedNationalId = nationalId || (credential && !credential.includes('@') ? credential : undefined);
 
-    if ((!email && !nationalId) || !password) {
+    if ((!resolvedEmail && !resolvedNationalId) || !password) {
       return res.status(400).json({
         message: "Email or National ID and password are required",
       });
@@ -115,8 +133,8 @@ const login = async (req, res) => {
     const user = await prisma.user.findFirst({
       where: {
         OR: [
-          email ? { email } : undefined,
-          nationalId ? { nationalId } : undefined,
+          resolvedEmail ? { email: resolvedEmail } : undefined,
+          resolvedNationalId ? { nationalId: resolvedNationalId } : undefined,
         ].filter(Boolean),
       },
     });
@@ -141,7 +159,7 @@ const login = async (req, res) => {
         role: user.role,
         hospitalId: user.hospitalId,
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "hospital_system_super_secure_secret_key",
       {
         expiresIn: "7d",
       }

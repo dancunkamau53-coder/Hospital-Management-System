@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import api from '../../api/axios';
 
 export default function AdminPayments() {
   const [payments, setPayments] = useState([]);
   const [referrals, setReferrals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [modal, setModal] = useState({ open: false, action: null, id: null });
 
   useEffect(() => {
     const load = async () => {
@@ -18,92 +21,102 @@ export default function AdminPayments() {
       } catch (err) {
         console.error('Admin list load error', err);
       } finally {
-            const [search, setSearch] = useState('');
-            const [statusFilter, setStatusFilter] = useState('ALL');
-            const [modal, setModal] = useState({ open: false, action: null, id: null });
         setLoading(false);
       }
     };
+
     load();
   }, []);
 
-  const handleApprove = async (id) => {
+  const filteredPayments = useMemo(() => {
+    return payments.filter((payment) => {
+      const matchesSearch =
+        !search ||
+        String(payment.id).includes(search) ||
+        String(payment.subscriptionId || '').includes(search) ||
+        String(payment.amount || '').includes(search);
+      const matchesStatus = statusFilter === 'ALL' || payment.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [payments, search, statusFilter]);
+
+  const openModal = (action, id) => {
+    setModal({ open: true, action, id });
+  };
+
+  const confirmModal = async () => {
+    const { action, id } = modal;
+    setModal({ open: false, action: null, id: null });
+
     try {
-      await api.put(`/payments/approve/${id}`);
-      setPayments((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'APPROVED' } : p)));
+      if (action === 'APPROVE') {
+        await api.put(`/payments/approve/${id}`);
+        setPayments((prev) =>
+          prev.map((payment) => (payment.id === id ? { ...payment, status: 'APPROVED' } : payment))
+        );
+      } else if (action === 'REJECT') {
+        await api.put(`/payments/reject/${id}`);
+        setPayments((prev) =>
+          prev.map((payment) => (payment.id === id ? { ...payment, status: 'REJECTED' } : payment))
+        );
+      }
     } catch (err) {
-      console.error('Approve error', err);
+      console.error('Action error', err);
     }
   };
 
-  const handleReject = async (id) => {
-    try {
-      await api.put(`/payments/reject/${id}`);
-      setPayments((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'REJECTED' } : p)));
-            const handleApprove = async (id) => {
-              setModal({ open: true, action: 'APPROVE', id });
-            };
+  const cancelModal = () => setModal({ open: false, action: null, id: null });
 
-            const handleReject = async (id) => {
-              setModal({ open: true, action: 'REJECT', id });
-            };
+  return (
+    <div className="page-shell">
+      <div className="table-card">
+        <h2>Subscription Payments</h2>
 
-            const confirmModal = async () => {
-              const { action, id } = modal;
-              setModal({ ...modal, open: false });
-              try {
-                if (action === 'APPROVE') {
-                  await api.put(`/payments/approve/${id}`);
-                  setPayments((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'APPROVED' } : p)));
-                } else if (action === 'REJECT') {
-                  await api.put(`/payments/reject/${id}`);
-                  setPayments((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'REJECTED' } : p)));
-                }
-              } catch (err) {
-                console.error('Action error', err);
-              }
-            };
+        <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
+          <input
+            placeholder="Search by id, subscription, amount"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="ALL">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
 
-            const cancelModal = () => setModal({ open: false, action: null, id: null });
+        {loading ? (
+          <p>Loading payments…</p>
+        ) : filteredPayments.length ? (
           <table>
             <thead>
               <tr>
-            const filteredPayments = payments.filter((p) => {
-              const matchesSearch = !search || String(p.id).includes(search) || String(p.subscriptionId).includes(search) || String(p.amount).includes(search);
-              const matchesStatus = statusFilter === 'ALL' || p.status === statusFilter;
-              return matchesSearch && matchesStatus;
-            });
                 <th>ID</th>
                 <th>Subscription</th>
                 <th>Amount</th>
                 <th>Method</th>
                 <th>Status</th>
                 <th>Date</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {payments.map((p) => (
-                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
-                    <input placeholder="Search by id, subscription, amount" value={search} onChange={(e) => setSearch(e.target.value)} />
-                    <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                      <option value="ALL">All</option>
-                      <option value="PENDING">Pending</option>
-                      <option value="APPROVED">Approved</option>
-                      <option value="REJECTED">Rejected</option>
-                    </select>
-                  </div>
-                <tr key={p.id}>
-                  <td>{p.id}</td>
-                  <td>{p.subscriptionId}</td>
-                  <td>KES {p.amount}</td>
-                  <td>{p.method}</td>
-                  <td>{p.status}</td>
-                  <td>{new Date(p.createdAt).toLocaleString()}</td>
+              {filteredPayments.map((payment) => (
+                <tr key={payment.id}>
+                  <td>{payment.id}</td>
+                  <td>{payment.subscriptionId}</td>
+                  <td>KES {payment.amount}</td>
+                  <td>{payment.method}</td>
+                  <td>{payment.status}</td>
+                  <td>{new Date(payment.createdAt).toLocaleString()}</td>
                   <td>
-                    {p.status === 'PENDING' && (
+                    {payment.status === 'PENDING' && (
                       <>
-                        <button onClick={() => handleApprove(p.id)} style={{ marginRight: '8px' }}>Approve</button>
-                        <button onClick={() => handleReject(p.id)}>Reject</button>
+                        <button onClick={() => openModal('APPROVE', payment.id)} style={{ marginRight: '8px' }}>
+                          Approve
+                        </button>
+                        <button onClick={() => openModal('REJECT', payment.id)}>Reject</button>
                       </>
                     )}
                   </td>
@@ -129,12 +142,12 @@ export default function AdminPayments() {
               </tr>
             </thead>
             <tbody>
-              {referrals.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.id}</td>
-                  <td>{r.userId || r.entityId}</td>
-                  <td>{r.details}</td>
-                  <td>{new Date(r.createdAt).toLocaleString()}</td>
+              {referrals.map((referral) => (
+                <tr key={referral.id}>
+                  <td>{referral.id}</td>
+                  <td>{referral.userId || referral.entityId}</td>
+                  <td>{referral.details}</td>
+                  <td>{new Date(referral.createdAt).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>
@@ -143,14 +156,31 @@ export default function AdminPayments() {
           <p>No referral requests found.</p>
         )}
       </div>
+
       {modal.open && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
           <div style={{ background: '#fff', padding: 24, borderRadius: 12, width: 420 }}>
             <h3>Confirm {modal.action === 'APPROVE' ? 'Approval' : 'Rejection'}</h3>
-            <p>Are you sure you want to {modal.action === 'APPROVE' ? 'approve' : 'reject'} payment #{modal.id}?</p>
+            <p>
+              Are you sure you want to {modal.action === 'APPROVE' ? 'approve' : 'reject'} payment #{modal.id}?
+            </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 12 }}>
               <button onClick={cancelModal}>Cancel</button>
-              <button onClick={confirmModal} style={{ background: 'linear-gradient(135deg,#0d55d3,#0f63f1)', color: '#fff' }}>{modal.action === 'APPROVE' ? 'Approve' : 'Reject'}</button>
+              <button
+                onClick={confirmModal}
+                style={{ background: 'linear-gradient(135deg,#0d55d3,#0f63f1)', color: '#fff' }}
+              >
+                {modal.action === 'APPROVE' ? 'Approve' : 'Reject'}
+              </button>
             </div>
           </div>
         </div>

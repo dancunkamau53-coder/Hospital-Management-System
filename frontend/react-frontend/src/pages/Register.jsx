@@ -14,7 +14,7 @@ export default function Register() {
     setError(null);
 
     try {
-      await register({ name, email, nationalId, password });
+      await register({ fullName: name, email, nationalId, password });
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }
