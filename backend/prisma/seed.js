@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -25,9 +25,7 @@ async function main(){
   }
 
   const token = jwt.sign({ id: user.id, hospitalId: hosp.id, role: user.role }, process.env.JWT_SECRET || 'hospital_system_super_secure_secret_key', { expiresIn: '7d' });
-  console.log('\n---
-SEED COMPLETE
-JWT=' + token + '\n---');
+  console.log('\n---\nSEED COMPLETE\nJWT=' + token + '\n---');
 }
 
 main().catch(e=>{console.error(e); process.exit(1);} ).finally(()=>prisma.$disconnect());
