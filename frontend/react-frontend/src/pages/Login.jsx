@@ -23,9 +23,10 @@ export default function Login() {
   };
 
   return (
-    <div className="form-card">
+    <div className="auth-card form-card">
+      <div className="privacy-badge">Private by default</div>
       <h1>eCitizen Health Portal Login</h1>
-      <p>Sign in with your Email or National ID to access government health services.</p>
+      <p>Sign in with your Email or National ID to access your protected health services.</p>
       <form onSubmit={handleSubmit}>
         <input
           value={credential}
@@ -41,8 +42,9 @@ export default function Login() {
           required
         />
         <button type="submit">Login</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+        {error && <p className="form-error">{error}</p>}
       </form>
+      <p className="privacy-note">Your health information stays behind authentication. Do not share your password or verification code.</p>
     </div>
   );
 }

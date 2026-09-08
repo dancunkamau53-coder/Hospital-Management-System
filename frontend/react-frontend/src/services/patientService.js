@@ -1,13 +1,13 @@
 import api from '../api/axios';
 export const getPatients = () => api.get('/patients');
 export const addPatient = (patient) => api.post('/patients', patient);
-export const getPatientRecords = () => api.get('/records');
-export const getPatientAppointments = () => api.get('/patients/appointments');
-export const getPatientPayments = () => api.get('/patients/payments');
+export const getPatientRecords = () => api.get('/patient-portal/records');
+export const getPatientAppointments = () => api.get('/patient-portal/appointments');
+export const getPatientPayments = () => api.get('/billing/payments');
 export const getPatientProfile = () => api.get('/patient-portal/me');
 export const exportMedicalSummary = () => api.get('/patient-portal/export-summary');
 export const requestReferral = (data) => api.post('/patient-portal/request-referral', data);
-export const bookPatientAppointment = (appointment) => api.post('/appointment', appointment);
-export const payPatientBill = (payment) => api.post('/payment', payment);
+export const bookPatientAppointment = (appointment) => api.post('/appointments', appointment);
+export const payPatientBill = (payment) => api.post('/payments', payment);
 export const createSubscription = (data) => api.post('/subscriptions', data);
 export const capturePayPalOrder = (data) => api.post('/payments/confirm', data);

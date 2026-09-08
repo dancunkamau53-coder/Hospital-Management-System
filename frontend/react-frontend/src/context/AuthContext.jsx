@@ -7,11 +7,18 @@ export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
   const [token, setTokenState] = useState(getToken());
+  const [user, setUser] = useState(() => {
+    if (!getToken()) return null;
+
+    try {
+      const storedUser = localStorage.getItem('user');
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      localStorage.removeItem('user');
+      return null;
+    }
+  });
 
   useEffect(() => {
     if (token) {
@@ -59,7 +66,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, register, logout, isAuthenticated: Boolean(user) }}>
+    <AuthContext.Provider value={{ user, token, login, register, logout, isAuthenticated: Boolean(user && token) }}>
       {children}
     </AuthContext.Provider>
   );

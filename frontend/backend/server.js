@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authMiddleware = require('./middleware/authMiddleware');
@@ -30,7 +29,7 @@ app.get('/api/status', (req, res) => {
   res.json({ status: 'Hospital eCitizen API is running' });
 });
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 10000;
 app.listen(port, () => {
   console.log(`Hospital eCitizen backend listening on http://localhost:${port}`);
 });

@@ -15,10 +15,17 @@ import ProtectedRoute from '../components/auth/ProtectedRoute';
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/services" replace />} />
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/services" element={<Services />} />
+      <Route
+        path="/services"
+        element={
+          <ProtectedRoute>
+            <Services />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/patient"
         element={
@@ -37,7 +44,11 @@ export default function AppRoutes() {
       />
       <Route
         path="/payment-cancelled"
-        element={<PaymentCancelled />}
+        element={
+          <ProtectedRoute roles={[ 'PATIENT' ]}>
+            <PaymentCancelled />
+          </ProtectedRoute>
+        }
       />
       <Route
         path="/doctor"
@@ -64,7 +75,7 @@ export default function AppRoutes() {
         }
       />
       <Route path="/unauthorized" element={<Unauthorized />} />
-      <Route path="*" element={<Navigate to="/services" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
