@@ -16,8 +16,9 @@ const createToken = (user) => {
 };
 
 const login = (req, res) => {
-  const { credential, password } = req.body;
-  const user = findUserByCredential(credential);
+  const { credential, email, nationalId, password } = req.body;
+  const resolvedCredential = credential || email || nationalId;
+  const user = findUserByCredential(resolvedCredential);
 
   if (!user || user.password !== password) {
     return res.status(401).json({ message: 'Invalid credentials' });
@@ -28,7 +29,8 @@ const login = (req, res) => {
 };
 
 const register = (req, res) => {
-  const { name, email, nationalId, password } = req.body;
+  const { name, fullName, email, nationalId, password } = req.body;
+  const resolvedName = name || fullName;
   const data = loadData();
   const exists = data.users.find(
     (user) => user.email === email || user.nationalId === nationalId
@@ -40,7 +42,7 @@ const register = (req, res) => {
 
   const newUser = {
     id: data.users.length + 1,
-    name,
+    name: resolvedName,
     email,
     nationalId,
     password,
@@ -48,7 +50,7 @@ const register = (req, res) => {
   };
 
   data.users.push(newUser);
-  data.patients.push({ id: newUser.id, name, email, nationalId, records: [], prescriptions: [] });
+  data.patients.push({ id: newUser.id, name: resolvedName, email, nationalId, records: [], prescriptions: [] });
   data.auditLogs.push({ event: 'register', user: newUser.email, time: new Date().toISOString() });
   saveData(data);
 

@@ -23,6 +23,13 @@
       "nationalId": "P3000003",
       "password": "patient123",
       "role": "PATIENT"
+    },
+    {
+      "id": 4,
+      "email": "dancunkamau53@gmail.com",
+      "nationalId": "558576343",
+      "password": "200515@Mudasjh",
+      "role": "PATIENT"
     }
   ],
   "patients": [
@@ -51,6 +58,13 @@
           "date": "2026-05-15"
         }
       ]
+    },
+    {
+      "id": 4,
+      "email": "dancunkamau53@gmail.com",
+      "nationalId": "558576343",
+      "records": [],
+      "prescriptions": []
     }
   ],
   "appointments": [
@@ -200,6 +214,11 @@
         "status": "COMPLETED",
         "date": "2026-05-28T06:57:01.740Z"
       }
+    },
+    {
+      "event": "register",
+      "user": "dancunkamau53@gmail.com",
+      "time": "2026-09-08T13:16:11.750Z"
     }
   ]
 }
