@@ -60,12 +60,24 @@ const bookAppointment = (req, res) => {
 
 const payBill = (req, res) => {
   const data = loadData();
+  const amount = Number(req.body.amount);
+  const phone = String(req.body.phone || '').trim();
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return res.status(400).json({ message: 'A valid payment amount is required' });
+  }
+
+  if (!/^\+?\d{10,13}$/.test(phone)) {
+    return res.status(400).json({ message: 'A valid M-Pesa phone number is required' });
+  }
+
   const reference = req.body.reference || `PAYBILL-${req.user.id}-${Date.now()}`;
   const payment = {
     id: data.payments.length + 1,
     patientId: req.user.id,
-    amount: Number(req.body.amount) || 0,
+    amount,
     method: req.body.method || 'M-Pesa',
+    phone,
     status: 'COMPLETED',
     date: new Date().toISOString(),
     paybillNumber: '200200',

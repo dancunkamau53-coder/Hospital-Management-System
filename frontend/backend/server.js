@@ -15,6 +15,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({
+    message: 'Hospital eCitizen API is running',
+    frontend: 'http://localhost:3000',
+    health: '/api/status'
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api', serviceRoutes);
 app.use('/api', featureRoutes);

@@ -57,6 +57,7 @@ th{background:rgba(13,85,211,0.08);color:var(--primary);font-weight:700}
 .search-form{display:grid;grid-template-columns:minmax(0,1fr) 180px auto;max-width:none;align-items:center}
 .search-form button{white-space:nowrap}
 .inline-actions{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.9rem}
+.payment-instructions{margin:12px 0 0;color:var(--muted);font-size:.9rem}
 small{color:var(--muted)}
 @media(max-width:1080px){.app{flex-direction:column;padding:18px}.sidebar{width:100%}.table-row{grid-template-columns:1fr}}
 @media(max-width:720px){.cards{grid-template-columns:1fr}.admin-dashboard,.doctor-dashboard{padding:24px}.form-card{padding:22px}.search-form{grid-template-columns:1fr}.table-toolbar{align-items:flex-start;flex-direction:column}}

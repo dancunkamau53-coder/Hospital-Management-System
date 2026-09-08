@@ -16,6 +16,7 @@ export default function PatientDashboard() {
   const [profile, setProfile] = useState(null);
   const [appointment, setAppointment] = useState({ doctor: 'Dr. Alice Mwangi', date: '', time: '', reason: '' });
   const [subscriptionPlan, setSubscriptionPlan] = useState('BASIC');
+  const [mpesaPhone, setMpesaPhone] = useState('');
   const [membershipStatus, setMembershipStatus] = useState('INACTIVE');
   const [membershipExpiry, setMembershipExpiry] = useState(null);
   const [subscriptionId, setSubscriptionId] = useState(null);
@@ -41,7 +42,7 @@ export default function PatientDashboard() {
   );
 
   const totalPaid = useMemo(
-    () => payments.reduce((sum, paymentItem) => sum + Number(paymentItem.amount || 0), 0),
+    () => payments.filter((paymentItem) => paymentItem.status === 'COMPLETED').reduce((sum, paymentItem) => sum + Number(paymentItem.amount || 0), 0),
     [payments]
   );
 
@@ -80,14 +81,28 @@ export default function PatientDashboard() {
     event && event.preventDefault();
     setMessage('');
 
+    const planAmounts = { BASIC: 1500, PRO: 3000, PREMIUM: 5000 };
+    const normalizedPhone = mpesaPhone.trim();
+    if (!/^\+?\d{10,13}$/.test(normalizedPhone)) {
+      setMessage('Enter a valid M-Pesa phone number, for example 0712345678.');
+      return;
+    }
+
     try {
-      const payload = { plan: subscriptionPlan };
+      const payload = {
+        plan: subscriptionPlan,
+        amount: planAmounts[subscriptionPlan],
+        method: 'M-Pesa',
+        phone: normalizedPhone,
+        accountReference: user?.email
+      };
       const response = await createSubscription(payload);
       setMembershipStatus(response.data.status || 'PENDING');
       setSubscriptionId(response.data.id || null);
-      setMessage('Payment request submitted. Your membership will activate after verification.');
+      setPayments((previous) => [response.data, ...previous]);
+      setMessage(`M-Pesa payment request created. Send KES ${planAmounts[subscriptionPlan].toLocaleString()} to Paybill 200200 using account ${user?.email}.`);
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Unable to start PayPal checkout.');
+      setMessage(error.response?.data?.message || 'Unable to create the M-Pesa payment request.');
     }
   };
 
@@ -191,7 +206,7 @@ export default function PatientDashboard() {
         <div className="cards">
           <div className="card">
             <h3>Active Membership</h3>
-            <p>eCitizen Health Membership • Portal + Email delivery</p>
+            <p>eCitizen Health Membership • M-Pesa payment</p>
             <div style={{ marginTop: '12px' }}>
               <label style={{ marginRight: '8px' }}>Plan:</label>
               <select value={subscriptionPlan} onChange={(e) => setSubscriptionPlan(e.target.value)}>
@@ -199,7 +214,16 @@ export default function PatientDashboard() {
                 <option value="PRO">PRO - KES 3,000</option>
                 <option value="PREMIUM">PREMIUM - KES 5,000</option>
               </select>
-              <button style={{ marginLeft: '12px' }} onClick={handleSubscribe}>Subscribe / Pay</button>
+              <input
+                value={mpesaPhone}
+                onChange={(event) => setMpesaPhone(event.target.value)}
+                placeholder="M-Pesa phone number"
+                inputMode="tel"
+                aria-label="M-Pesa phone number"
+                style={{ margin: '12px 0 0', width: '100%' }}
+              />
+              <p className="payment-instructions">Paybill: <strong>200200</strong> · Account: <strong>{user?.email}</strong></p>
+              <button style={{ marginTop: '12px' }} onClick={handleSubscribe}>Request M-Pesa payment</button>
             </div>
           </div>
           <div className="card">
