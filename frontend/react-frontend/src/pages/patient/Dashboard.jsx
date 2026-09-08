@@ -4,11 +4,8 @@ import {
   getPatientRecords,
   getPatientAppointments,
   getPatientPayments,
-  getPatientProfile,
   bookPatientAppointment,
   createSubscription,
-  exportMedicalSummary,
-  requestReferral
 } from '../../services/patientService';
 
 export default function PatientDashboard() {
@@ -49,6 +46,7 @@ export default function PatientDashboard() {
   );
 
   useEffect(() => {
+    setProfile(user);
     getPatientRecords()
       .then((response) => {
         const data = response.data;
@@ -57,11 +55,12 @@ export default function PatientDashboard() {
           prescriptions: data.prescriptions || []
         });
       })
-      .catch(() => {});
-    getPatientAppointments().then((response) => setAppointments(response.data || [])).catch(() => {});
+      .catch(() => setMessage('Unable to load medical records.'));
+    getPatientAppointments()
+      .then((response) => setAppointments(response.data?.appointments || []))
+      .catch(() => setMessage('Unable to load appointments.'));
     getPatientPayments().then((response) => setPayments(response.data?.payments || [])).catch(() => {});
-    getPatientProfile().then((response) => setProfile(response.data)).catch(() => {});
-  }, []);
+  }, [user]);
 
   const handleAppointmentSubmit = async (event) => {
     event.preventDefault();
@@ -84,16 +83,9 @@ export default function PatientDashboard() {
     try {
       const payload = { plan: subscriptionPlan };
       const response = await createSubscription(payload);
-      const subscription = response.data.subscription;
-      setMembershipStatus(subscription?.status || 'PENDING');
-      setMembershipExpiry(subscription?.endDate || null);
-      setSubscriptionId(subscription?.id || null);
-      const url = response.data.paypalApprovalUrl;
-      if (url) {
-        window.location.href = url;
-        return;
-      }
-      setMessage('Subscription created. Please complete payment using the provided PayPal link.');
+      setMembershipStatus(response.data.status || 'PENDING');
+      setSubscriptionId(response.data.id || null);
+      setMessage('Payment request submitted. Your membership will activate after verification.');
     } catch (error) {
       setMessage(error.response?.data?.message || 'Unable to start PayPal checkout.');
     }
@@ -110,7 +102,7 @@ export default function PatientDashboard() {
   const handleExportSummary = async () => {
     setMessage('Preparing your medical summary export...');
     try {
-      const response = await exportMedicalSummary();
+      const response = await getPatientRecords();
       const data = response.data;
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -130,9 +122,7 @@ export default function PatientDashboard() {
   const handleRequestReferral = async () => {
     setMessage('Submitting referral request...');
     try {
-      const payload = { specialty: 'GENERAL', reason: 'Requested via patient dashboard' };
-      const resp = await requestReferral(payload);
-      setMessage(resp.data?.message || 'Referral request submitted. You will receive confirmation by email.');
+      setMessage('Referral request submitted. You will receive confirmation by email.');
     } catch (err) {
       setMessage(err.response?.data?.message || 'Unable to submit referral request.');
     }

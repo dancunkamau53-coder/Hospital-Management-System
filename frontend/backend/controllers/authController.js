@@ -17,7 +17,7 @@ const createToken = (user) => {
 
 const login = (req, res) => {
   const { credential, email, nationalId, password } = req.body;
-  const resolvedCredential = credential || email || nationalId;
+  const resolvedCredential = String(credential || email || nationalId || '').trim();
   const user = findUserByCredential(resolvedCredential);
 
   if (!user || user.password !== password) {

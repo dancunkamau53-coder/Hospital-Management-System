@@ -12,9 +12,10 @@ export default function Login() {
     setError(null);
 
     try {
+      const normalizedCredential = credential.trim();
       await login({
-        email: credential.includes('@') ? credential : undefined,
-        nationalId: credential.includes('@') ? undefined : credential,
+        email: normalizedCredential.includes('@') ? normalizedCredential : undefined,
+        nationalId: normalizedCredential.includes('@') ? undefined : normalizedCredential,
         password,
       });
     } catch (err) {

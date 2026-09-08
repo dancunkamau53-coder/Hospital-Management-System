@@ -17,8 +17,11 @@ function saveData(data) {
 
 function findUserByCredential(credential) {
   const data = loadData();
+  const normalizedCredential = String(credential || '').trim().toLowerCase();
   return data.users.find(
-    (user) => user.email === credential || user.nationalId === credential
+    (user) =>
+      user.email?.toLowerCase() === normalizedCredential ||
+      user.nationalId?.toLowerCase() === normalizedCredential
   );
 }
 
