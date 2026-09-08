@@ -2,12 +2,12 @@ const { loadData, saveData } = require('../utils/dataStore');
 
 const getDoctorPatients = (req, res) => {
   const data = loadData();
-  res.json(data.patients.map((patient) => ({ id: patient.id, name: patient.name, email: patient.email, nationalId: patient.nationalId })));
+  res.json(data.patients.filter((patient) => patient.hospitalId === req.user.hospitalId).map((patient) => ({ id: patient.id, name: patient.name, email: patient.email, nationalId: patient.nationalId })));
 };
 
 const getDoctorAppointments = (req, res) => {
   const data = loadData();
-  res.json(data.appointments.filter((appointment) => appointment.status !== 'CANCELLED'));
+  res.json(data.appointments.filter((appointment) => appointment.hospitalId === req.user.hospitalId && appointment.status !== 'CANCELLED'));
 };
 
 const addPrescription = (req, res) => {
@@ -15,6 +15,7 @@ const addPrescription = (req, res) => {
   const prescription = {
     id: data.prescriptions.length + 1,
     doctorId: req.user.id,
+    hospitalId: req.user.hospitalId,
     patientId: req.body.patientId,
     medication: req.body.medication,
     instructions: req.body.instructions,
@@ -38,6 +39,7 @@ const updateRecord = (req, res) => {
   const record = {
     id: data.records.length + 1,
     doctorId: req.user.id,
+    hospitalId: req.user.hospitalId,
     patientId: req.body.patientId,
     note: req.body.note,
     diagnosis: req.body.diagnosis,

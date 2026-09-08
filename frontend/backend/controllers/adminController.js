@@ -2,18 +2,21 @@ const { loadData, saveData } = require('../utils/dataStore');
 
 const getReports = (req, res) => {
   const data = loadData();
-  const pendingClaims = data.appointments.filter((appointment) => appointment.status === 'PENDING').length;
-  const confirmedClaims = data.appointments.filter((appointment) => appointment.status === 'CONFIRMED').length;
+  const tenantAppointments = data.appointments.filter((appointment) => appointment.hospitalId === req.user.hospitalId);
+  const tenantPatients = data.patients.filter((patient) => patient.hospitalId === req.user.hospitalId);
+  const tenantUsers = data.users.filter((user) => user.hospitalId === req.user.hospitalId);
+  const pendingClaims = tenantAppointments.filter((appointment) => appointment.status === 'PENDING').length;
+  const confirmedClaims = tenantAppointments.filter((appointment) => appointment.status === 'CONFIRMED').length;
   const report = {
-    totalPatients: data.patients.length,
-    totalAppointments: data.appointments.length,
-    totalDoctors: data.users.filter((user) => user.role === 'DOCTOR').length,
-    totalPayments: data.payments?.reduce((sum, payment) => sum + Number(payment.amount || 0), 0),
-    totalClaims: data.appointments.length,
+    totalPatients: tenantPatients.length,
+    totalAppointments: tenantAppointments.length,
+    totalDoctors: tenantUsers.filter((user) => user.role === 'DOCTOR').length,
+    totalPayments: data.payments?.filter((payment) => payment.hospitalId === req.user.hospitalId).reduce((sum, payment) => sum + Number(payment.amount || 0), 0),
+    totalClaims: tenantAppointments.length,
     pendingClaims,
     confirmedClaims,
-    activeMemberships: data.patients.length,
-    paybillNumber: '200200',
+    activeMemberships: tenantPatients.length,
+    paybillNumber: data.hospitals.find((hospital) => hospital.id === req.user.hospitalId)?.paybill || '200200',
     schemeStatus: 'Live',
     recentAudit: data.auditLogs.slice(-20)
   };
@@ -34,7 +37,8 @@ const addDoctor = (req, res) => {
     email: req.body.email,
     nationalId: req.body.nationalId,
     password: req.body.password || 'password123',
-    role: 'DOCTOR'
+    role: 'DOCTOR',
+    hospitalId: req.user.hospitalId
   };
 
   data.users.push(doctor);

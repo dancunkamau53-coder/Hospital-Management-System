@@ -17,6 +17,9 @@ import Notifications from '../pages/notifications/Notifications';
 import Search from '../pages/search/Search';
 import RoleDashboard from '../pages/operations/RoleDashboard';
 import InvoiceHistory from '../pages/billing/InvoiceHistory';
+import RegisterHospital from '../pages/hospitals/RegisterHospital';
+import Hospitals from '../pages/admin/Hospitals';
+import HospitalSettings from '../pages/hospitals/HospitalSettings';
 
 export default function AppRoutes() {
   return (
@@ -24,6 +27,8 @@ export default function AppRoutes() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/hospital/register" element={<RegisterHospital />} />
+      <Route path="/hospital/settings" element={<ProtectedRoute roles={[ 'ADMIN', 'SUPER_ADMIN' ]}><HospitalSettings /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/appointments/manage" element={<ProtectedRoute><ManageAppointments /></ProtectedRoute>} />
       <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
@@ -85,6 +90,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/admin/hospitals" element={<ProtectedRoute roles={[ 'SUPER_ADMIN' ]}><Hospitals /></ProtectedRoute>} />
       {['NURSE', 'PHARMACIST', 'RECEPTIONIST', 'CASHIER'].map((role) => (
         <Route
           key={role}

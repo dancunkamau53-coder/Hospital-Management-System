@@ -9,6 +9,7 @@ const createToken = (user) => {
       name: user.name,
       email: user.email,
       nationalId: user.nationalId
+      ,hospitalId: user.hospitalId || 1
     },
     process.env.JWT_SECRET || 'ecitizen-secret',
     { expiresIn: '8h' }
@@ -24,8 +25,14 @@ const login = (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
 
+  const data = loadData();
+  const hospital = data.hospitals.find((item) => item.id === (user.hospitalId || 1));
+  if (user.role !== 'SUPER_ADMIN' && hospital && hospital.status !== 'APPROVED') {
+    return res.status(403).json({ message: 'Your hospital account is awaiting approval' });
+  }
+
   const token = createToken(user);
-  res.json({ token, user: { id: user.id, role: user.role, name: user.name, email: user.email } });
+  res.json({ token, user: { id: user.id, role: user.role, name: user.name, email: user.email, hospitalId: user.hospitalId || 1, hospital } });
 };
 
 const register = (req, res) => {
@@ -47,15 +54,16 @@ const register = (req, res) => {
     nationalId,
     password,
     role: 'PATIENT'
+    ,hospitalId: 1
   };
 
   data.users.push(newUser);
-  data.patients.push({ id: newUser.id, name: resolvedName, email, nationalId, records: [], prescriptions: [] });
+  data.patients.push({ id: newUser.id, name: resolvedName, email, nationalId, hospitalId: 1, records: [], prescriptions: [] });
   data.auditLogs.push({ event: 'register', user: newUser.email, time: new Date().toISOString() });
   saveData(data);
 
   const token = createToken(newUser);
-  res.status(201).json({ token, user: { id: newUser.id, role: newUser.role, name: newUser.name, email: newUser.email } });
+  res.status(201).json({ token, user: { id: newUser.id, role: newUser.role, name: newUser.name, email: newUser.email, hospitalId: newUser.hospitalId } });
 };
 
 module.exports = { login, register };

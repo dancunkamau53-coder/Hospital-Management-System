@@ -54,8 +54,8 @@ function updateProfile(req, res) {
 function getNotifications(req, res) {
   const data = loadData();
   const notifications = [];
-  const appointments = data.appointments.filter((item) => item.patientId === Number(req.user.id));
-  const payments = (data.payments || []).filter((item) => item.patientId === Number(req.user.id));
+  const appointments = data.appointments.filter((item) => item.patientId === Number(req.user.id) && item.hospitalId === req.user.hospitalId);
+  const payments = (data.payments || []).filter((item) => item.patientId === Number(req.user.id) && item.hospitalId === req.user.hospitalId);
   const patient = getPatient(data, req.user.id);
 
   appointments.forEach((item) => notifications.push({
@@ -122,16 +122,16 @@ function search(req, res) {
   const matches = [];
 
   if (type === 'all' || type === 'patients') {
-    data.patients.filter((item) => JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'patient', id: item.id, title: item.name || item.email, detail: item.email || item.nationalId }));
+    data.patients.filter((item) => item.hospitalId === req.user.hospitalId && JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'patient', id: item.id, title: item.name || item.email, detail: item.email || item.nationalId }));
   }
   if (type === 'all' || type === 'doctors') {
-    data.users.filter((item) => item.role === 'DOCTOR' && JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'doctor', id: item.id, title: item.name, detail: item.email }));
+    data.users.filter((item) => item.hospitalId === req.user.hospitalId && item.role === 'DOCTOR' && JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'doctor', id: item.id, title: item.name, detail: item.email }));
   }
   if (type === 'all' || type === 'appointments') {
-    data.appointments.filter((item) => JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'appointment', id: item.id, title: item.doctor, detail: `${item.date} ${item.status}` }));
+    data.appointments.filter((item) => item.hospitalId === req.user.hospitalId && JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'appointment', id: item.id, title: item.doctor, detail: `${item.date} ${item.status}` }));
   }
   if (type === 'all' || type === 'medicines') {
-    (data.medicines || []).filter((item) => JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'medicine', id: item.id, title: item.name, detail: `Stock: ${item.stock}` }));
+    (data.medicines || []).filter((item) => item.hospitalId === req.user.hospitalId && JSON.stringify(item).toLowerCase().includes(query)).forEach((item) => matches.push({ type: 'medicine', id: item.id, title: item.name, detail: `Stock: ${item.stock}` }));
   }
 
   res.json(matches.slice(0, 100));

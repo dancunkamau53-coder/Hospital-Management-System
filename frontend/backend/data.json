@@ -6,7 +6,8 @@
       "email": "admin@hospital.gov",
       "nationalId": "A1000001",
       "password": "admin123",
-      "role": "ADMIN"
+      "role": "ADMIN",
+      "hospitalId": 1
     },
     {
       "id": 2,
@@ -14,7 +15,8 @@
       "email": "doctor@hospital.gov",
       "nationalId": "D2000002",
       "password": "doctor123",
-      "role": "DOCTOR"
+      "role": "DOCTOR",
+      "hospitalId": 1
     },
     {
       "id": 3,
@@ -22,14 +24,16 @@
       "email": "patient@hospital.gov",
       "nationalId": "P3000003",
       "password": "patient123",
-      "role": "PATIENT"
+      "role": "PATIENT",
+      "hospitalId": 1
     },
     {
       "id": 4,
       "email": "dancunkamau53@gmail.com",
       "nationalId": "558576343",
       "password": "200515@Mudasjh",
-      "role": "PATIENT"
+      "role": "PATIENT",
+      "hospitalId": 1
     },
     {
       "id": 5,
@@ -39,7 +43,24 @@
       "password": "200515@Mudash",
       "role": "PATIENT",
       "phone": "",
-      "profilePhoto": ""
+      "profilePhoto": "",
+      "hospitalId": 1
+    },
+    {
+      "id": 999999,
+      "name": "Platform Super Admin",
+      "email": "superadmin@ecitizen.go.ke",
+      "password": "ChangeMeImmediately123!",
+      "role": "SUPER_ADMIN",
+      "hospitalId": 1
+    },
+    {
+      "id": 1000000,
+      "name": "Tenant Admin",
+      "email": "tenant-admin@example.com",
+      "password": "TenantPass123!",
+      "role": "ADMIN",
+      "hospitalId": 2
     }
   ],
   "patients": [
@@ -67,14 +88,16 @@
           "instructions": "Take one tablet twice daily for three days.",
           "date": "2026-05-15"
         }
-      ]
+      ],
+      "hospitalId": 1
     },
     {
       "id": 4,
       "email": "dancunkamau53@gmail.com",
       "nationalId": "558576343",
       "records": [],
-      "prescriptions": []
+      "prescriptions": [],
+      "hospitalId": 1
     },
     {
       "id": 5,
@@ -85,7 +108,8 @@
       "prescriptions": [],
       "address": "",
       "emergencyContact": "",
-      "phone": ""
+      "phone": "",
+      "hospitalId": 1
     }
   ],
   "appointments": [
@@ -96,7 +120,8 @@
       "doctor": "Dr. Alice Mwangi",
       "date": "2026-06-10",
       "time": "09:00",
-      "status": "CONFIRMED"
+      "status": "CONFIRMED",
+      "hospitalId": 1
     },
     {
       "id": 2,
@@ -105,7 +130,8 @@
       "doctor": "Dr. Alice Mwangi",
       "date": "2026-06-05",
       "time": "10:30",
-      "status": "PENDING"
+      "status": "PENDING",
+      "hospitalId": 1
     },
     {
       "id": 3,
@@ -114,7 +140,8 @@
       "doctor": "Dr. Alice Mwangi",
       "date": "2026-06-05",
       "time": "10:30",
-      "status": "PENDING"
+      "status": "PENDING",
+      "hospitalId": 1
     },
     {
       "id": 4,
@@ -124,19 +151,22 @@
       "date": "2026-09-10",
       "time": "18:00",
       "reason": "checkup",
-      "status": "PENDING"
+      "status": "PENDING",
+      "hospitalId": 1
     }
   ],
   "medicines": [
     {
       "id": 1,
       "name": "Paracetamol",
-      "stock": 120
+      "stock": 120,
+      "hospitalId": 1
     },
     {
       "id": 2,
       "name": "Amoxicillin",
-      "stock": 50
+      "stock": 50,
+      "hospitalId": 1
     }
   ],
   "prescriptions": [
@@ -146,7 +176,8 @@
       "patientId": 3,
       "medication": "Ibuprofen",
       "instructions": "Take one tablet twice daily for three days.",
-      "date": "2026-05-15"
+      "date": "2026-05-15",
+      "hospitalId": 1
     }
   ],
   "records": [
@@ -156,7 +187,8 @@
       "patientId": 3,
       "note": "Routine checkup, stable blood pressure.",
       "diagnosis": "Healthy",
-      "date": "2026-05-15"
+      "date": "2026-05-15",
+      "hospitalId": 1
     }
   ],
   "payments": [
@@ -166,7 +198,8 @@
       "amount": 4500,
       "method": "M-Pesa",
       "status": "COMPLETED",
-      "date": "2026-05-16"
+      "date": "2026-05-16",
+      "hospitalId": 1
     },
     {
       "id": 2,
@@ -174,7 +207,8 @@
       "amount": 500,
       "method": "M-Pesa",
       "status": "COMPLETED",
-      "date": "2026-05-28T06:56:13.717Z"
+      "date": "2026-05-28T06:56:13.717Z",
+      "hospitalId": 1
     },
     {
       "id": 3,
@@ -182,7 +216,8 @@
       "amount": 500,
       "method": "M-Pesa",
       "status": "COMPLETED",
-      "date": "2026-05-28T06:57:01.740Z"
+      "date": "2026-05-28T06:57:01.740Z",
+      "hospitalId": 1
     },
     {
       "id": 4,
@@ -195,7 +230,8 @@
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
       "reference": "PAYBILL-5-1788874719023",
-      "refundRequestedAt": "2026-09-08T14:12:45.711Z"
+      "refundRequestedAt": "2026-09-08T14:12:45.711Z",
+      "hospitalId": 1
     },
     {
       "id": 5,
@@ -208,7 +244,8 @@
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
       "reference": "PAYBILL-5-1788874722017",
-      "refundRequestedAt": "2026-09-08T14:12:48.385Z"
+      "refundRequestedAt": "2026-09-08T14:12:48.385Z",
+      "hospitalId": 1
     },
     {
       "id": 6,
@@ -221,7 +258,8 @@
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
       "reference": "PAYBILL-5-1788874742712",
-      "refundRequestedAt": "2026-09-08T14:12:51.244Z"
+      "refundRequestedAt": "2026-09-08T14:12:51.244Z",
+      "hospitalId": 1
     },
     {
       "id": 7,
@@ -233,7 +271,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874758474"
+      "reference": "PAYBILL-5-1788874758474",
+      "hospitalId": 1
     },
     {
       "id": 8,
@@ -245,7 +284,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874860874"
+      "reference": "PAYBILL-5-1788874860874",
+      "hospitalId": 1
     },
     {
       "id": 9,
@@ -257,7 +297,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874869262"
+      "reference": "PAYBILL-5-1788874869262",
+      "hospitalId": 1
     },
     {
       "id": 10,
@@ -269,7 +310,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874870883"
+      "reference": "PAYBILL-5-1788874870883",
+      "hospitalId": 1
     },
     {
       "id": 11,
@@ -281,7 +323,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874871411"
+      "reference": "PAYBILL-5-1788874871411",
+      "hospitalId": 1
     },
     {
       "id": 12,
@@ -293,7 +336,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876077544"
+      "reference": "PAYBILL-5-1788876077544",
+      "hospitalId": 1
     },
     {
       "id": 13,
@@ -305,7 +349,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876086201"
+      "reference": "PAYBILL-5-1788876086201",
+      "hospitalId": 1
     },
     {
       "id": 14,
@@ -317,7 +362,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876088041"
+      "reference": "PAYBILL-5-1788876088041",
+      "hospitalId": 1
     },
     {
       "id": 15,
@@ -329,7 +375,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876090956"
+      "reference": "PAYBILL-5-1788876090956",
+      "hospitalId": 1
     },
     {
       "id": 16,
@@ -341,7 +388,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876243847"
+      "reference": "PAYBILL-5-1788876243847",
+      "hospitalId": 1
     },
     {
       "id": 17,
@@ -354,7 +402,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876523187"
+      "reference": "PAYBILL-5-1788876523187",
+      "hospitalId": 1
     },
     {
       "id": 18,
@@ -367,7 +416,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876794920"
+      "reference": "PAYBILL-5-1788876794920",
+      "hospitalId": 1
     },
     {
       "id": 19,
@@ -380,7 +430,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876803504"
+      "reference": "PAYBILL-5-1788876803504",
+      "hospitalId": 1
     },
     {
       "id": 20,
@@ -393,7 +444,8 @@
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788876804977"
+      "reference": "PAYBILL-5-1788876804977",
+      "hospitalId": 1
     }
   ],
   "auditLogs": [
@@ -779,6 +831,56 @@
         "subscriptionPlan": "BASIC",
         "reference": "PAYBILL-5-1788876804977"
       }
+    },
+    {
+      "event": "hospital_registration",
+      "user": "tenant-admin@example.com",
+      "hospitalId": 2,
+      "time": "2026-09-08T14:28:04.265Z"
+    },
+    {
+      "event": "hospital_approved",
+      "hospitalId": 2,
+      "user": "superadmin@ecitizen.go.ke",
+      "time": "2026-09-08T14:29:17.857Z"
+    }
+  ],
+  "hospitals": [
+    {
+      "id": 1,
+      "name": "eCitizen Health Service",
+      "email": "admin@hospital.gov",
+      "status": "APPROVED",
+      "plan": "BASIC",
+      "paybill": "200200",
+      "brandColor": "#1d427f"
+    },
+    {
+      "id": 2,
+      "name": "Tenant Test Hospital",
+      "email": "tenant-test@example.com",
+      "phone": "0700000000",
+      "status": "APPROVED",
+      "plan": "BASIC",
+      "paybill": "",
+      "brandColor": "#1d427f",
+      "settings": {
+        "timezone": "Africa/Nairobi"
+      },
+      "createdAt": "2026-09-08T14:28:04.265Z",
+      "approvedAt": "2026-09-08T14:29:17.857Z"
+    }
+  ],
+  "invitations": [
+    {
+      "id": "db88e3ad-b07a-45ea-aaf7-733d1fa6c67e",
+      "email": "tenant-doctor@example.com",
+      "name": "Tenant Doctor",
+      "role": "DOCTOR",
+      "hospitalId": 2,
+      "token": "d3b6bc90cd861c5b8ba8adc5f06be48c",
+      "status": "PENDING",
+      "createdAt": "2026-09-08T14:29:17.977Z"
     }
   ]
 }

@@ -29,6 +29,9 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
+      if (user.hospital?.brandColor) {
+        document.documentElement.style.setProperty('--primary-dark', user.hospital.brandColor);
+      }
     }
   }, [user]);
 
