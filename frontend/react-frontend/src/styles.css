@@ -52,5 +52,11 @@ th{background:rgba(13,85,211,0.08);color:var(--primary);font-weight:700}
 .status-pill.pending{background:#fff4db;color:#b36c00;border:1px solid #ffd591}
 .status-pill.confirmed{background:#d3f9d8;color:#237804;border:1px solid #96f2d7}
 .panel-note{background:#eef6ff;padding:18px;border-left:4px solid #0d55d3;border-radius:18px;margin-top:20px}
+.table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.table-toolbar span{color:var(--muted);font-size:.9rem}
+.search-form{display:grid;grid-template-columns:minmax(0,1fr) 180px auto;max-width:none;align-items:center}
+.search-form button{white-space:nowrap}
+.inline-actions{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:.9rem}
+small{color:var(--muted)}
 @media(max-width:1080px){.app{flex-direction:column;padding:18px}.sidebar{width:100%}.table-row{grid-template-columns:1fr}}
-@media(max-width:720px){.cards{grid-template-columns:1fr}.admin-dashboard,.doctor-dashboard{padding:24px}.form-card{padding:22px}}
+@media(max-width:720px){.cards{grid-template-columns:1fr}.admin-dashboard,.doctor-dashboard{padding:24px}.form-card{padding:22px}.search-form{grid-template-columns:1fr}.table-toolbar{align-items:flex-start;flex-direction:column}}

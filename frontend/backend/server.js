@@ -7,6 +7,7 @@ const patientRoutes = require('./routes/patientRoutes');
 const doctorRoutes = require('./routes/doctorRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
+const featureRoutes = require('./routes/featureRoutes');
 const { getRecords, bookAppointment, payBill } = require('./controllers/patientController');
 const { getReports } = require('./controllers/adminController');
 
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/api', serviceRoutes);
+app.use('/api', featureRoutes);
 app.use('/api/patients', authMiddleware, authorizeRoles('PATIENT', 'DOCTOR', 'ADMIN'), patientRoutes);
 app.use('/api/doctor', authMiddleware, authorizeRoles('DOCTOR', 'ADMIN'), doctorRoutes);
 app.use('/api/admin', authMiddleware, authorizeRoles('ADMIN'), adminRoutes);

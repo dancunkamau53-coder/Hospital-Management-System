@@ -16,6 +16,12 @@ export default function Navbar() {
         {user && user.role === 'PATIENT' && <Link to="/patient">Patient Portal</Link>}
         {user && user.role === 'DOCTOR' && <Link to="/doctor">Doctor Portal</Link>}
         {user && user.role === 'ADMIN' && <Link to="/admin">Admin Panel</Link>}
+        {user && <Link to="/appointments/manage">Appointments</Link>}
+        {user && <Link to="/notifications">Notifications</Link>}
+        {user && <Link to="/billing/invoices">Invoices</Link>}
+        {user && <Link to="/search">Search</Link>}
+        {user && <Link to="/account">Account & Privacy</Link>}
+        {user && ['NURSE', 'PHARMACIST', 'RECEPTIONIST', 'CASHIER'].includes(user.role) && <Link to={`/${user.role.toLowerCase()}`}>Workspace</Link>}
         {user && <button onClick={logout}>Logout</button>}
       </nav>
     </header>

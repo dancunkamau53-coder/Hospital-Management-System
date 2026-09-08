@@ -11,6 +11,12 @@ import PaymentSuccess from '../pages/PaymentSuccess';
 import PaymentCancelled from '../pages/PaymentCancelled';
 import Unauthorized from '../pages/errors/Unauthorized';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
+import Account from '../pages/account/Account';
+import ManageAppointments from '../pages/appointments/ManageAppointments';
+import Notifications from '../pages/notifications/Notifications';
+import Search from '../pages/search/Search';
+import RoleDashboard from '../pages/operations/RoleDashboard';
+import InvoiceHistory from '../pages/billing/InvoiceHistory';
 
 export default function AppRoutes() {
   return (
@@ -18,6 +24,11 @@ export default function AppRoutes() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+      <Route path="/appointments/manage" element={<ProtectedRoute><ManageAppointments /></ProtectedRoute>} />
+      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+      <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
+      <Route path="/billing/invoices" element={<ProtectedRoute><InvoiceHistory /></ProtectedRoute>} />
       <Route
         path="/services"
         element={
@@ -74,6 +85,13 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {['NURSE', 'PHARMACIST', 'RECEPTIONIST', 'CASHIER'].map((role) => (
+        <Route
+          key={role}
+          path={`/${role.toLowerCase()}`}
+          element={<ProtectedRoute roles={[role]}><RoleDashboard role={role} /></ProtectedRoute>}
+        />
+      ))}
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

@@ -43,6 +43,8 @@ export function AuthProvider({ children }) {
       navigate('/admin');
     } else if (loggedUser.role === 'DOCTOR') {
       navigate('/doctor');
+    } else if (['NURSE', 'PHARMACIST', 'RECEPTIONIST', 'CASHIER'].includes(loggedUser.role)) {
+      navigate(`/${loggedUser.role.toLowerCase()}`);
     } else {
       navigate('/patient');
     }
