@@ -189,36 +189,39 @@
       "patientId": 5,
       "amount": 0,
       "method": "M-Pesa",
-      "status": "COMPLETED",
+      "status": "REFUND_REQUESTED",
       "date": "2026-09-08T13:38:39.023Z",
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874719023"
+      "reference": "PAYBILL-5-1788874719023",
+      "refundRequestedAt": "2026-09-08T14:12:45.711Z"
     },
     {
       "id": 5,
       "patientId": 5,
       "amount": 0,
       "method": "M-Pesa",
-      "status": "COMPLETED",
+      "status": "REFUND_REQUESTED",
       "date": "2026-09-08T13:38:42.017Z",
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874722017"
+      "reference": "PAYBILL-5-1788874722017",
+      "refundRequestedAt": "2026-09-08T14:12:48.385Z"
     },
     {
       "id": 6,
       "patientId": 5,
       "amount": 0,
       "method": "M-Pesa",
-      "status": "COMPLETED",
+      "status": "REFUND_REQUESTED",
       "date": "2026-09-08T13:39:02.712Z",
       "paybillNumber": "200200",
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
-      "reference": "PAYBILL-5-1788874742712"
+      "reference": "PAYBILL-5-1788874742712",
+      "refundRequestedAt": "2026-09-08T14:12:51.244Z"
     },
     {
       "id": 7,
@@ -352,6 +355,45 @@
       "accountReference": "mudash254@gmail.com",
       "subscriptionPlan": "BASIC",
       "reference": "PAYBILL-5-1788876523187"
+    },
+    {
+      "id": 18,
+      "patientId": 5,
+      "amount": 1500,
+      "method": "M-Pesa",
+      "phone": "0741866502",
+      "status": "COMPLETED",
+      "date": "2026-09-08T14:13:14.920Z",
+      "paybillNumber": "200200",
+      "accountReference": "mudash254@gmail.com",
+      "subscriptionPlan": "BASIC",
+      "reference": "PAYBILL-5-1788876794920"
+    },
+    {
+      "id": 19,
+      "patientId": 5,
+      "amount": 1500,
+      "method": "M-Pesa",
+      "phone": "0741866502",
+      "status": "COMPLETED",
+      "date": "2026-09-08T14:13:23.504Z",
+      "paybillNumber": "200200",
+      "accountReference": "mudash254@gmail.com",
+      "subscriptionPlan": "BASIC",
+      "reference": "PAYBILL-5-1788876803504"
+    },
+    {
+      "id": 20,
+      "patientId": 5,
+      "amount": 1500,
+      "method": "M-Pesa",
+      "phone": "0741866502",
+      "status": "COMPLETED",
+      "date": "2026-09-08T14:13:24.977Z",
+      "paybillNumber": "200200",
+      "accountReference": "mudash254@gmail.com",
+      "subscriptionPlan": "BASIC",
+      "reference": "PAYBILL-5-1788876804977"
     }
   ],
   "auditLogs": [
@@ -682,6 +724,60 @@
         "accountReference": "mudash254@gmail.com",
         "subscriptionPlan": "BASIC",
         "reference": "PAYBILL-5-1788876523187"
+      }
+    },
+    {
+      "event": "payment",
+      "user": "mudash254@gmail.com",
+      "time": "2026-09-08T14:13:14.920Z",
+      "details": {
+        "id": 18,
+        "patientId": 5,
+        "amount": 1500,
+        "method": "M-Pesa",
+        "phone": "0741866502",
+        "status": "COMPLETED",
+        "date": "2026-09-08T14:13:14.920Z",
+        "paybillNumber": "200200",
+        "accountReference": "mudash254@gmail.com",
+        "subscriptionPlan": "BASIC",
+        "reference": "PAYBILL-5-1788876794920"
+      }
+    },
+    {
+      "event": "payment",
+      "user": "mudash254@gmail.com",
+      "time": "2026-09-08T14:13:23.504Z",
+      "details": {
+        "id": 19,
+        "patientId": 5,
+        "amount": 1500,
+        "method": "M-Pesa",
+        "phone": "0741866502",
+        "status": "COMPLETED",
+        "date": "2026-09-08T14:13:23.504Z",
+        "paybillNumber": "200200",
+        "accountReference": "mudash254@gmail.com",
+        "subscriptionPlan": "BASIC",
+        "reference": "PAYBILL-5-1788876803504"
+      }
+    },
+    {
+      "event": "payment",
+      "user": "mudash254@gmail.com",
+      "time": "2026-09-08T14:13:24.977Z",
+      "details": {
+        "id": 20,
+        "patientId": 5,
+        "amount": 1500,
+        "method": "M-Pesa",
+        "phone": "0741866502",
+        "status": "COMPLETED",
+        "date": "2026-09-08T14:13:24.977Z",
+        "paybillNumber": "200200",
+        "accountReference": "mudash254@gmail.com",
+        "subscriptionPlan": "BASIC",
+        "reference": "PAYBILL-5-1788876804977"
       }
     }
   ]

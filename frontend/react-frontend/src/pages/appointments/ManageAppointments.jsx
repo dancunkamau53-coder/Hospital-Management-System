@@ -7,7 +7,9 @@ export default function ManageAppointments() {
   const [message, setMessage] = useState('');
 
   const load = () => api.get('/patients/appointments').then((response) => setAppointments(response.data.appointments || [])).catch(() => setMessage('Unable to load appointments.'));
-  useEffect(load, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   const edit = async (appointment) => {
     const date = window.prompt('New date (YYYY-MM-DD)', appointment.date);
