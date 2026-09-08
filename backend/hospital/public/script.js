@@ -1,18 +1,20 @@
-const AUTH_API = "http://localhost:5000/api/auth";
-const PATIENT_API_PUBLIC = "http://localhost:5000/api/patients/public";
-const PATIENT_API = "http://localhost:5000/api/patients";
-const DOCTOR_API = "http://localhost:5000/api/doctors/public/all";
-const DOCTOR_API_PROTECTED = "http://localhost:5000/api/doctors";
+const API_BASE = "http://localhost:10000";
+
+const AUTH_API = `${API_BASE}/api/auth`;
+const PATIENT_API_PUBLIC = `${API_BASE}/api/patients/public`;
+const PATIENT_API = `${API_BASE}/api/patients`;
+const DOCTOR_API = `${API_BASE}/api/doctors/public/all`;
+const DOCTOR_API_PROTECTED = `${API_BASE}/api/doctors`;
 const APPOINTMENT_API_PUBLIC = {
-  getAll: "http://localhost:5000/api/appointments/public/all",
-  create: "http://localhost:5000/api/appointments/public/create"
+  getAll: `${API_BASE}/api/appointments/public/all`,
+  create: `${API_BASE}/api/appointments/public/create`
 };
 const APPOINTMENT_API = {
-  getAll: "http://localhost:5000/api/appointments",
-  create: "http://localhost:5000/api/appointments"
+  getAll: `${API_BASE}/api/appointments`,
+  create: `${API_BASE}/api/appointments`
 };
-const PRESCRIPTION_API = "http://localhost:5000/api/prescriptions";
-const PHARMACY_API = "http://localhost:5000/api/pharmacy";
+const PRESCRIPTION_API = `${API_BASE}/api/prescriptions`;
+const PHARMACY_API = `${API_BASE}/api/pharmacy`;
 const TOKEN_KEY = "hms_token";
 const USER_KEY = "hms_user";
 
