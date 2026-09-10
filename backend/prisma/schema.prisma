@@ -21,6 +21,10 @@ model Hospital {
 
   plan     String  @default("BASIC")
   isActive Boolean @default(true)
+  status   String  @default("APPROVED")
+  paybill  String?
+  brandColor String? @default("#1d427f")
+  settings String?
 
   createdAt DateTime @default(now())
 
@@ -36,6 +40,7 @@ model Hospital {
   medications    Medication[]
   dispensations  Dispensation[]
   auditLogs      AuditLog[]
+  invitations    Invitation[]
 }
 
 //
@@ -61,6 +66,20 @@ model User {
   auditLogs AuditLog[]
 
   createdAt DateTime @default(now())
+}
+
+model Invitation {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  email      String
+  fullName   String
+  role       String
+  status     String   @default("PENDING")
+  hospitalId Int
+  createdAt  DateTime @default(now())
+  acceptedAt DateTime?
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id])
 }
 
 //
