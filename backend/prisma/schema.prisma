@@ -19,28 +19,35 @@ model Hospital {
   email String  @unique
   phone String?
 
-  plan     String  @default("BASIC")
-  isActive Boolean @default(true)
-  status   String  @default("APPROVED")
-  paybill  String?
+  plan       String  @default("BASIC")
+  isActive   Boolean @default(true)
+  status     String  @default("APPROVED")
+  paybill    String?
   brandColor String? @default("#1d427f")
-  settings String?
+  settings   String?
 
   createdAt DateTime @default(now())
 
-  users          User[]
-  patients       Patient[]
-  doctors        Doctor[]
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[]
-  prescriptions  Prescription[]
-  invoices       Invoice[]
-  subscriptions  Subscription[]
-  subscriptionPayments SubscriptionPayment[]
-  medications    Medication[]
-  dispensations  Dispensation[]
-  auditLogs      AuditLog[]
-  invitations    Invitation[]
+  users                 User[]
+  patients              Patient[]
+  doctors               Doctor[]
+  appointments          Appointment[]
+  medicalRecords        MedicalRecord[]
+  prescriptions         Prescription[]
+  invoices              Invoice[]
+  subscriptions         Subscription[]
+  subscriptionPayments  SubscriptionPayment[]
+  medications           Medication[]
+  dispensations         Dispensation[]
+  auditLogs             AuditLog[]
+  invitations           Invitation[]
+  partnerOrganizations  PartnerOrganization[]
+  laboratoryOrders      LaboratoryOrder[]
+  referralsFrom         Referral[]             @relation("ReferralFromHospital")
+  referralsTo           Referral[]             @relation("ReferralToHospital")
+  insuranceClaims       InsuranceClaim[]
+  notifications         Notification[]
+  financialTransactions FinancialTransaction[]
 }
 
 //
@@ -63,20 +70,23 @@ model User {
   hospitalId Int?
   hospital   Hospital? @relation(fields: [hospitalId], references: [id])
 
-  auditLogs AuditLog[]
+  auditLogs                 AuditLog[]
+  notifications             Notification[]
+  grantedConsents           Consent[]
+  reviewedLaboratoryResults LaboratoryResult[]
 
   createdAt DateTime @default(now())
 }
 
 model Invitation {
-  id         Int      @id @default(autoincrement())
-  token      String   @unique
+  id         Int       @id @default(autoincrement())
+  token      String    @unique
   email      String
   fullName   String
   role       String
-  status     String   @default("PENDING")
+  status     String    @default("PENDING")
   hospitalId Int
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
   acceptedAt DateTime?
 
   hospital Hospital @relation(fields: [hospitalId], references: [id])
@@ -127,9 +137,16 @@ model Patient {
   invoices       Invoice[]
   dispensations  Dispensation[]
 
-  vitals       Vital[]
-  observations NurseObservation[]
-  admissions   Admission[]
+  vitals            Vital[]
+  observations      NurseObservation[]
+  admissions        Admission[]
+  laboratoryOrders  LaboratoryOrder[]
+  referrals         Referral[]
+  consents          Consent[]
+  insurancePolicies InsurancePolicy[]
+  insuranceClaims   InsuranceClaim[]
+  notifications     Notification[]
+  wallet            Wallet?
 }
 
 //
@@ -151,10 +168,13 @@ model Doctor {
 
   createdAt DateTime @default(now())
 
-  appointments   Appointment[]
-  medicalRecords MedicalRecord[]
-  prescriptions  Prescription[]
-  invoices       Invoice[]
+  appointments     Appointment[]
+  medicalRecords   MedicalRecord[]
+  prescriptions    Prescription[]
+  invoices         Invoice[]
+  laboratoryOrders LaboratoryOrder[]
+  referrals        Referral[]
+  availabilities   DoctorAvailability[]
 }
 
 //
@@ -279,7 +299,9 @@ model Invoice {
   doctor   Doctor?   @relation(fields: [doctorId], references: [id])
   hospital Hospital? @relation(fields: [hospitalId], references: [id])
 
-  payments Payment[]
+  payments              Payment[]
+  financialTransactions FinancialTransaction[]
+  insuranceClaims       InsuranceClaim[]
 
   createdAt DateTime @default(now())
 }
@@ -302,21 +324,219 @@ model Payment {
   createdAt DateTime @default(now())
 }
 
+//
+// ==========================================
+// 🌐 NATIONAL NETWORK ORGANIZATIONS
+// ==========================================
+//
+model PartnerOrganization {
+  id                Int               @id @default(autoincrement())
+  name              String
+  type              String
+  email             String?
+  phone             String?
+  licenseNumber     String?
+  isActive          Boolean           @default(true)
+  hospitalId        Int?
+  hospital          Hospital?         @relation(fields: [hospitalId], references: [id])
+  laboratoryOrders  LaboratoryOrder[]
+  insurancePolicies InsurancePolicy[]
+  createdAt         DateTime          @default(now())
+}
+
+//
+// ==========================================
+// 🧪 LABORATORY NETWORK
+// ==========================================
+//
+model LaboratoryOrder {
+  id                    Int                  @id @default(autoincrement())
+  patientId             Int
+  doctorId              Int
+  hospitalId            Int
+  partnerOrganizationId Int?
+  tests                 String
+  clinicalNotes         String?
+  status                String               @default("REQUESTED")
+  patient               Patient              @relation(fields: [patientId], references: [id])
+  doctor                Doctor               @relation(fields: [doctorId], references: [id])
+  hospital              Hospital             @relation(fields: [hospitalId], references: [id])
+  partnerOrganization   PartnerOrganization? @relation(fields: [partnerOrganizationId], references: [id])
+  results               LaboratoryResult[]
+  createdAt             DateTime             @default(now())
+}
+
+model LaboratoryResult {
+  id                Int             @id @default(autoincrement())
+  laboratoryOrderId Int
+  result            String
+  status            String          @default("DRAFT")
+  reviewedById      Int?
+  reviewedBy        User?           @relation(fields: [reviewedById], references: [id])
+  laboratoryOrder   LaboratoryOrder @relation(fields: [laboratoryOrderId], references: [id])
+  createdAt         DateTime        @default(now())
+}
+
+//
+// ==========================================
+// 🔁 REFERRALS AND PATIENT CONSENT
+// ==========================================
+//
+model Referral {
+  id                  Int       @id @default(autoincrement())
+  patientId           Int
+  fromHospitalId      Int
+  toHospitalId        Int?
+  requestedByDoctorId Int
+  reason              String
+  status              String    @default("REQUESTED")
+  patient             Patient   @relation(fields: [patientId], references: [id])
+  fromHospital        Hospital  @relation("ReferralFromHospital", fields: [fromHospitalId], references: [id])
+  toHospital          Hospital? @relation("ReferralToHospital", fields: [toHospitalId], references: [id])
+  requestedByDoctor   Doctor    @relation(fields: [requestedByDoctorId], references: [id])
+  createdAt           DateTime  @default(now())
+}
+
+model Consent {
+  id          Int       @id @default(autoincrement())
+  patientId   Int
+  grantedById Int?
+  purpose     String
+  status      String    @default("GRANTED")
+  expiresAt   DateTime?
+  patient     Patient   @relation(fields: [patientId], references: [id])
+  grantedBy   User?     @relation(fields: [grantedById], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+//
+// ==========================================
+// 🛡️ INSURANCE
+// ==========================================
+//
+model InsurancePolicy {
+  id                     Int                 @id @default(autoincrement())
+  patientId              Int
+  providerOrganizationId Int
+  policyNumber           String              @unique
+  memberNumber           String?
+  status                 String              @default("ACTIVE")
+  coverageDetails        String?
+  patient                Patient             @relation(fields: [patientId], references: [id])
+  providerOrganization   PartnerOrganization @relation(fields: [providerOrganizationId], references: [id])
+  claims                 InsuranceClaim[]
+  createdAt              DateTime            @default(now())
+}
+
+model InsuranceClaim {
+  id         Int             @id @default(autoincrement())
+  policyId   Int
+  patientId  Int
+  hospitalId Int
+  invoiceId  Int?
+  amount     Float
+  status     String          @default("SUBMITTED")
+  response   String?
+  policy     InsurancePolicy @relation(fields: [policyId], references: [id])
+  patient    Patient         @relation(fields: [patientId], references: [id])
+  hospital   Hospital        @relation(fields: [hospitalId], references: [id])
+  invoice    Invoice?        @relation(fields: [invoiceId], references: [id])
+  createdAt  DateTime        @default(now())
+}
+
+//
+// ==========================================
+// 🔔 NOTIFICATIONS AND DOCTOR AVAILABILITY
+// ==========================================
+//
+model Notification {
+  id         Int       @id @default(autoincrement())
+  userId     Int?
+  patientId  Int?
+  hospitalId Int?
+  title      String
+  message    String
+  channel    String    @default("IN_APP")
+  readAt     DateTime?
+  user       User?     @relation(fields: [userId], references: [id])
+  patient    Patient?  @relation(fields: [patientId], references: [id])
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+  createdAt  DateTime  @default(now())
+}
+
+model DoctorAvailability {
+  id        Int       @id @default(autoincrement())
+  doctorId  Int
+  status    String    @default("AVAILABLE")
+  startsAt  DateTime  @default(now())
+  endsAt    DateTime?
+  note      String?
+  doctor    Doctor    @relation(fields: [doctorId], references: [id])
+  createdAt DateTime  @default(now())
+}
+
+//
+// ==========================================
+// 💰 WALLET AND DOUBLE-ENTRY-READY LEDGER
+// ==========================================
+//
+model Wallet {
+  id           Int                    @id @default(autoincrement())
+  patientId    Int                    @unique
+  currency     String                 @default("KES")
+  balance      Float                  @default(0)
+  status       String                 @default("ACTIVE")
+  patient      Patient                @relation(fields: [patientId], references: [id])
+  entries      LedgerEntry[]
+  transactions FinancialTransaction[]
+  createdAt    DateTime               @default(now())
+}
+
+model LedgerEntry {
+  id            Int                   @id @default(autoincrement())
+  walletId      Int
+  transactionId Int?
+  type          String
+  amount        Float
+  balanceAfter  Float
+  reference     String?
+  wallet        Wallet                @relation(fields: [walletId], references: [id])
+  transaction   FinancialTransaction? @relation(fields: [transactionId], references: [id])
+  createdAt     DateTime              @default(now())
+}
+
+model FinancialTransaction {
+  id                Int           @id @default(autoincrement())
+  walletId          Int?
+  invoiceId         Int?
+  hospitalId        Int?
+  type              String
+  amount            Float
+  currency          String        @default("KES")
+  status            String        @default("PENDING")
+  providerReference String?       @unique
+  wallet            Wallet?       @relation(fields: [walletId], references: [id])
+  invoice           Invoice?      @relation(fields: [invoiceId], references: [id])
+  hospital          Hospital?     @relation(fields: [hospitalId], references: [id])
+  entries           LedgerEntry[]
+  createdAt         DateTime      @default(now())
+}
+
 model SubscriptionPayment {
   id Int @id @default(autoincrement())
 
-  subscriptionId Int
-  hospitalId     Int?
-  amount         Float
-  method         String  @default("PAYPAL")
-  reference      String?
-  proofImage     String?
-  status         String  @default("PENDING")
-  paypalOrderId  String? @unique
+  subscriptionId  Int
+  hospitalId      Int?
+  amount          Float
+  method          String  @default("PAYPAL")
+  reference       String?
+  proofImage      String?
+  status          String  @default("PENDING")
+  paypalOrderId   String? @unique
   paypalCaptureId String? @unique
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id])
-  hospital     Hospital?  @relation(fields: [hospitalId], references: [id])
+  hospital     Hospital?    @relation(fields: [hospitalId], references: [id])
 
   createdAt DateTime @default(now())
 }
@@ -431,12 +651,12 @@ model Ward {
 model Bed {
   id Int @id @default(autoincrement())
 
-  wardId Int
+  wardId    Int
   patientId Int?
 
   status String @default("AVAILABLE")
 
-  ward Ward @relation(fields: [wardId], references: [id])
+  ward       Ward        @relation(fields: [wardId], references: [id])
   admissions Admission[]
 }
 
@@ -488,12 +708,12 @@ model WorkflowInstance {
 
   workflowId     Int
   currentStepKey String
-  status         String @default("ACTIVE")
+  status         String  @default("ACTIVE")
   context        String?
 
   createdAt DateTime @default(now())
 
-  workflow Workflow @relation(fields: [workflowId], references: [id])
+  workflow Workflow      @relation(fields: [workflowId], references: [id])
   logs     WorkflowLog[]
 }
 

@@ -93,6 +93,9 @@ const workflowRoutes = require("./routes/workflowRoutes");
 // PROTECTED
 const protectedRoutes = require("./routes/protectedRoutes");
 
+// NATIONAL PLATFORM MODULES
+const platformRoutes = require("./routes/platformRoutes");
+
 
 // ==========================================
 // 🚀 API ROUTES
@@ -154,6 +157,9 @@ app.use("/api/subscriptions", subscriptionRoutes);
 
 // WORKFLOW
 app.use("/api/workflows", workflowRoutes);
+
+// NATIONAL PLATFORM MODULES
+app.use("/api/platform", platformRoutes);
 
 // PROTECTED
 app.use("/api/protected", protectedRoutes);
